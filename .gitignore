@@ -1,0 +1,12 @@
+.env
+__pycache__
+db.sqlite3
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*.pyzw
+media
+venv
