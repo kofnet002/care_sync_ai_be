@@ -10,3 +10,12 @@ db.sqlite3
 *.pyzw
 media
 venv
+.vscode
+dump.rdb
+celerybeat-schedule
+celerybeat.pid
+celerybeat.log
+celerybeat.pid
+celerybeat.log
+celerybeat.pid
+celerybeat.log
