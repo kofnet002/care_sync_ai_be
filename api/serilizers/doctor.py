@@ -7,13 +7,13 @@ from api.serilizers.patient import PatientSerializer, ActionPlanSerializer
 class DoctorListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'email']
+        fields = ['id', 'username', 'email']
         read_only_fields = fields
 
 class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'full_name', 'email']
+        fields = ['id', 'username', 'email']
 
 
 class DoctorPatientSerializer(serializers.ModelSerializer):

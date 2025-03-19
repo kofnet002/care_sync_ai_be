@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from apps.user.models import User
+from api.utils.permissions import IsAuthenticated
 from api.serilizers.doctor import DoctorPatientSerializer
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
@@ -10,11 +10,13 @@ from drf_spectacular.utils import OpenApiResponse
 from django.shortcuts import get_object_or_404
 from apps.patient.models import Reminder
 from api.external.services import ReminderService
-
+from api.pagination import BasicPagination
+from api.utils.permissions import IsPatient
 
 class AssignDoctorView(APIView):
     permission_classes = [IsAuthenticated]
-
+    pagination_class = BasicPagination
+    
     @extend_schema(
         tags=['Doctor-Patient'],
         description='Patient selects a doctor',
@@ -66,7 +68,7 @@ class AssignDoctorView(APIView):
         return Response(DoctorPatientSerializer(doctor_patient).data, status=status.HTTP_201_CREATED)
 
 class ReminderCheckInView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
 
     @extend_schema(
         tags=['Reminders'],
@@ -82,15 +84,8 @@ class ReminderCheckInView(APIView):
             400: OpenApiResponse(description='Invalid check-in or already completed')
         }
     )
-    def post(self, request, reminder_id):
+    def get(self, request, reminder_id):
         reminder = get_object_or_404(Reminder, id=reminder_id)
-        
-        if reminder.patient != request.user:
-            return Response(
-                {"detail": "Not authorized"},
-                status=status.HTTP_403_FORBIDDEN
-            )
-
         if ReminderService.handle_checkin(reminder):
             return Response({"detail": "Successfully checked in"})
         return Response(

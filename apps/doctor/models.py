@@ -46,26 +46,6 @@ class DoctorNote(models.Model):
     def __str__(self):
         return f"Note for {self.doctor_patient.patient.full_name} by Dr. {self.doctor_patient.doctor.full_name}"
 
-class DoctorNote(models.Model):
-    doctor_patient = models.ForeignKey(
-        DoctorPatient,
-        on_delete=models.CASCADE,
-        related_name='notes'
-    )
-    content = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def clean(self):
-        if self.doctor_patient.doctor != self.doctor_patient.doctor:
-            raise ValidationError("Doctor can only add notes for their patients")
-
-    class Meta:
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return f"Note for {self.doctor_patient.patient.full_name} by Dr. {self.doctor_patient.doctor.full_name}"
-
 class ChecklistItem(models.Model):
     note = models.ForeignKey(
         DoctorNote,

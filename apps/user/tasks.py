@@ -2,31 +2,32 @@ from celery import shared_task
 from django.utils import timezone
 from apps.patient.models import Reminder
 from datetime import timedelta
-from django.core.mail import send_mail
 from django.conf import settings
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
+from celery.utils.log import get_task_logger
+from core.celery import app
 
-@shared_task
+logger = get_task_logger(__name__)
+
+@app.task(name='send_reminder_email', serializer='json', queue="Reminder")
 def send_reminder_email(reminder_id):    
     try:
         reminder = Reminder.objects.get(id=reminder_id)
         if not reminder.completed:
-            print(f"Sending reminder email for reminder: {reminder}")
-            subject = f"Reminder: {reminder.title} - Day {reminder.sequence_number}"
-            message = f"""
-            Hello {reminder.patient.email},
-            
-            This is a reminder for your action plan: {reminder.description}
-            Day {reminder.sequence_number}
-            Please check-in once completed.
-            """
-            
-            send_mail(
-                subject,
-                message,
-                settings.EMAIL_HOST_USER,
-                [reminder.patient.email],
-                fail_silently=False,
-            )
+            mail_subject = f"Reminder: {reminder.title} - Day {reminder.sequence_number}"
+            message = render_to_string('reminder_copy/reminder_template.html', {
+                'reminder': reminder,
+                'app_url': settings.APP_URL
+            })
+            to_email = reminder.patient.email
+            send_email  = EmailMultiAlternatives(mail_subject, message, settings.EMAIL_HOST_USER, [to_email])
+            send_email.content_subtype = "html"
+
+        try:
+            print('Attempting to Send Mail')
+            send_email.send()
+            print('Email Sent')
             
             # If not checked in by scheduled time, reschedule for next hour
             next_reminder = timezone.now() + timedelta(hours=1)
@@ -34,12 +35,14 @@ def send_reminder_email(reminder_id):
                 args=[reminder.id],
                 eta=next_reminder
             )
-            
+        except Exception as e:
+            print(e)
+            return{'message':'failed to send mail'}
     except Reminder.DoesNotExist:
         pass
 
 
-@shared_task
+@app.task(name='check_and_send_due_reminders', serializer='json', queue="Reminder")
 def check_and_send_due_reminders():
     """
     Periodic task that runs every 5 minutes to check and send due reminders

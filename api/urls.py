@@ -25,9 +25,7 @@ urlpatterns = [
 
     # Doctor Notes endpoints
     path('notes/create/', CreateNoteView.as_view(), name='create-note'),
-    path('notes/patient/<int:patient_id>/', PatientNotesView.as_view(), name='patient-notes'),
-
-    # Patient notes
+    path('notes/patient/<int:patient_id>/', PatientNotesView.as_view(), name='patient-note'),
     path('patient-notes/', ListPatientNotesView.as_view(), name='patient-notes'),
 
     # Action Plans endpoints
@@ -36,5 +34,5 @@ urlpatterns = [
 
     # Reminders endpoints
     path('reminders/', ReminderView.as_view(), name='reminders'),
-    path('reminders/checkin/<int:reminder_id>/', ReminderCheckInView.as_view(), name='reminder-checkin'),
+    path('reminders/<int:reminder_id>/checkin/', ReminderCheckInView.as_view(), name='reminder-checkin'),
 ]   

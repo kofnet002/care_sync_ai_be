@@ -33,6 +33,8 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
 
+APP_URL = env('APP_URL')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", default=0))
 
@@ -195,11 +197,12 @@ REST_FRAMEWORK = {
      'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
      ],
+    'DEFAULT_PAGINATION_CLASS': 'api.pagination.BasicPagination',
 
-     # Test
+    # Test
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 
-     'TEST_REQUEST_RENDERER_CLASSES': [
+    'TEST_REQUEST_RENDERER_CLASSES': [
         'rest_framework.renderers.MultiPartRenderer',
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.TemplateHTMLRenderer'

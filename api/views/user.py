@@ -9,6 +9,11 @@ from api.serilizers.user import (
     UserRegistrationSerializer, 
 )
 from drf_spectacular.utils import extend_schema, OpenApiResponse
+from api.utils.renderers import LoginRenderer
+from rest_framework.permissions import AllowAny
+from django.utils import timezone
+from api.serilizers.user import UserLoginSerializer
+
 
 # Create your views here.
 class UserRegistrationView(APIView):
@@ -29,27 +34,45 @@ class UserRegistrationView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-class LoginView(BaseTokenObtainPairView):
-    @extend_schema(
-        tags=['Authentication'],
-        description='Login with email and password to obtain JWT tokens',
-        request={'multipart/form-data': {
-            'type': 'object',
-            'properties': {
-                'email': {'type': 'string'},
-                'password': {'type': 'string'}
-            },
-            'required': ['email', 'password']
-        }},
-        responses={
-            200: OpenApiResponse(description='Login successful, returns access and refresh tokens'),
-            401: OpenApiResponse(description='Invalid credentials')
+@extend_schema(
+    tags=['Authentication'],
+    description='Login with email and password to obtain JWT tokens',
+    request={'multipart/form-data': {
+        'type': 'object',
+        'properties': {
+            'email': {'type': 'string'},
+            'password': {'type': 'string'}
         },
-        operation_id='auth_login'
-    )
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+        'required': ['email', 'password']
+    }},
+    responses={
+        200: OpenApiResponse(description='Login successful, returns access and refresh tokens'),
+        401: OpenApiResponse(description='Invalid credentials')
+    },
+    operation_id='auth_login'
+)
 
+class LoginView(BaseTokenObtainPairView):
+    serializer_class = UserLoginSerializer
+    renderer_classes = [LoginRenderer]
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        
+        # If login was successful, update last_login
+        if response.status_code == 200:
+            # The user will be available in the serializer
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.user
+            
+            # Update last_login
+            user.last_login = timezone.now()
+            user.save(update_fields=['last_login'])
+        
+        return response
 class TokenRefreshView(BaseTokenRefreshView):
     @extend_schema(
         tags=['Authentication'],

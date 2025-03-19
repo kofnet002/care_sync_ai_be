@@ -124,7 +124,7 @@ class ReminderService:
                     # )
                     
                     result = app.send_task(
-                        'users.tasks.send_reminder_email',
+                        'send_reminder_email',
                         args=[first_reminder.id],
                         eta=first_reminder.scheduled_for
                     )

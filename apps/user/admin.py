@@ -6,16 +6,17 @@ from apps.doctor.models import DoctorPatient, DoctorNote, ChecklistItem
 from apps.patient.models import Reminder, ActionPlan
 
 class CustomUserAdmin(UserAdmin):
-    list_display = ('id','email', 'first_name', 'last_name', 'user_type', 'is_active', 'is_staff', 'date_joined')
-    list_filter = ('user_type', 'is_active', 'is_staff', 'is_superuser', 'groups')
-    search_fields = ('email', 'first_name', 'last_name')
-    ordering = ('email',)
+    list_display = ('email', 'username', 'user_type', 'is_active', 'is_staff', 'is_superuser', 'last_login', 'date_joined')
+    list_display_links = ('email', 'username')
     readonly_fields = ('date_joined', 'last_login')
+    list_filter = ('user_type', 'is_active', 'is_staff', 'is_superuser', 'groups')
+    search_fields = ('email', 'username')
+    ordering = ('email',)
     filter_horizontal = ('groups', 'user_permissions',)
 
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name', 'user_type')}),
+        (_('Personal info'), {'fields': ('username', 'user_type')}),
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
         }),
@@ -25,7 +26,7 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2', 'user_type', 'first_name', 'last_name'),
+            'fields': ('email', 'password1', 'password2', 'user_type', 'username'),
         }),
     )
 
@@ -76,11 +77,16 @@ class DoctorNoteAdmin(admin.ModelAdmin):
 
 
 class ReminderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'action_plan', 'patient', 'title', 'scheduled_for', 'completed')
+    list_display = ('id', 'action_plan', 'get_patient', 'title', 'scheduled_for', 'completed')
     list_filter = ('completed',)
     search_fields = ('title', 'action_plan__note__content', 'patient__email')
     raw_id_fields = ('action_plan', 'patient')
     date_hierarchy = 'scheduled_for'
+
+    def get_patient(self, obj):
+        return obj.patient.email
+    get_patient.short_description = 'Patient'
+    get_patient.admin_order_field = 'patient__email'
 
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(DoctorPatient, DoctorPatientAdmin)
