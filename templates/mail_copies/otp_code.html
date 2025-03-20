@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .email-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .otp-code {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: 8px;
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px dashed #418592;
+            border-radius: 12px;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #418592, #103f45);
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .content {
+            padding: 20px;
+            text-align: left;
+        }
+
+        .greeting {
+            font-size: 22px;
+            font-weight: bold;
+            color: #418592;
+            margin-bottom: 10px;
+        }
+
+        .text {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .footer {
+            /* background: #222; */
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #8b8b8b;
+        }
+
+        .footer a {
+            color: #0f00e7;
+            text-decoration: none;
+        }
+
+        .warning {
+            background-color: #FEF3C7;
+            border-left: 4px solid #F59E0B;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #92400E;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* Mobile Styles */
+        @media only screen and (max-width: 480px) {
+            .email-container {
+                width: 100%;
+                border-radius: 0;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .greeting {
+                font-size: 20px;
+            }
+
+            .text {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <table role="presentation" width="100%" height="100%" cellspacing="0" cellpadding="0" border="0" class="container">
+        <td>
+            <div class="email-container">
+                <div class="header">
+                    <img class="logo" src="https://fastparcel-bucket-dev.s3.us-east-1.amazonaws.com/logo.png"
+                        alt="CareSync AI Logo" width="100" height="100">
+                    <h1>CareSync AI</h1>
+                    <h1>Secure Access Verification</h1>
+                </div>
+
+                <div class="content">
+                    <p class="text">Welcome, {{ name }}! 🔐</p>
+                    <p class="text">To ensure the security of your healthcare information, please use the following
+                        verification code:</p>
+                    <div class="otp-code">
+                        {{ otp_code }}
+                    </div>
+                    <p class="text">For your security, this code will expire in <span
+                            style="font-weight: 800; color: #418592;">{{ interval }}</span> minutes.</p>
+
+                    <p class="text warning">Security Notice: If you did not initiate this verification request, please
+                        disregard this email and contact our support team immediately.</p>
+
+                    <p class="text">This is an automated security message from CareSync AI. Please do not reply to this
+                        email.</p>
+                </div>
+                <div class="footer">
+                    <p>Trusted Healthcare Technology Partner</p>
+                    <p><a href="mailto:iamnetwork23@gmail.com">📧 support@healthcare.com</a></p>
+                </div>
+            </div>
+        </td>
+    </table>
+</body>
+
+</html>

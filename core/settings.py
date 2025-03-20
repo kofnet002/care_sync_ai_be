@@ -253,6 +253,10 @@ SIMPLE_JWT = {
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
     'JTI_CLAIM': 'jti',
+    # Disable warning logs
+    'DISABLE_ERRORS_AND_WARNINGS': True,
+    'SERVE_PUBLIC': False,
+    'SERVE_PERMISSIONS': ['rest_framework.permissions.AllowAny'],  # Permissions for schema view
 }
 
 SWAGGER_SETTINGS = {
@@ -325,6 +329,11 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'noeljoel61@gmail.com'
 EMAIL_HOST_PASSWORD = 'lizgbannzucyhqvk'
+
+EMAIL_TOKEN_EXPIRATION_MINUTES = int(os.getenv("EMAIL_TOKEN_EXPIRATION_MINUTES", 30))
+PASSWORD_TOKEN_EXPIRATION_MINUTES  = int(os.getenv("PASSWORD_TOKEN_EXPIRATION_MINUTES", 15))
+
+UI_DOMAIN = os.getenv("UI_DOMAIN", "http://localhost:3000")
 
 ADMIN_SITE_HEADER = 'CareSyncAI Admin'
 ADMIN_SITE_TITLE = 'CareSyncAI Admin'
