@@ -2,24 +2,41 @@ from rest_framework import permissions
 from apps.user.models import User
 from apps.doctor.models import DoctorPatient
 
+class IsEmailVerified(permissions.BasePermission):
+    message = "Email verification is required to access this resource."
+
+    def has_permission(self, request, view):
+        # Check if the user is authenticated and their email is verified.
+        return request.user.is_authenticated and request.user.email_verified
+    
 class IsDoctor(permissions.BasePermission):
     message = "Only doctors can view this resource."
 
     def has_permission(self, request, view):
+        # Check if user is authenticated first
+        if not request.user or not request.user.is_authenticated:
+            return False
+            
         # Superuser has access to all permissions
         if request.user.is_superuser:
             return True
-        # Check if the user is a doctor.
+            
+        # Check if the user is a doctor
         return request.user.user_type == User.UserType.DOCTOR
 
 class IsPatient(permissions.BasePermission):
     message = "Only patients can view this resource."
 
     def has_permission(self, request, view):
+        # Check if user is authenticated first
+        if not request.user or not request.user.is_authenticated:
+            return False
+            
         # Superuser has access to all permissions
         if request.user.is_superuser:
             return True
-        # Check if the user is a patient.
+            
+        # Check if the user is a patient
         return request.user.user_type == User.UserType.PATIENT
 
 class IsAuthenticated(permissions.BasePermission):

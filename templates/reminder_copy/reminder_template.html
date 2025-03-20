@@ -28,7 +28,7 @@
         }
 
         .header {
-            background: linear-gradient(45deg, #4158D0, #C850C0, #FFCC70);
+            background: linear-gradient(45deg, #418592, #103f45);
             text-align: center;
             padding: 30px 20px;
         }
@@ -47,7 +47,7 @@
         .greeting {
             font-size: 22px;
             font-weight: bold;
-            color: #4158D0;
+            color: #418592;
             margin-bottom: 10px;
         }
 
@@ -60,22 +60,22 @@
 
         .reminder-box {
             background: #f9f9f9;
-            border-left: 4px solid #C850C0;
+            border-left: 4px solid #418592;
             padding: 15px;
             border-radius: 5px;
             margin: 20px 0;
         }
 
         .footer {
-            background: #222;
+            /* background: #222; */
             padding: 20px;
             text-align: center;
             font-size: 14px;
-            color: #bbb;
+            color: #8b8b8b;
         }
 
         .footer a {
-            color: #bbb;
+            color: #0f00e7;
             text-decoration: none;
         }
 
@@ -86,8 +86,8 @@
         }
 
         .cta-button {
-            background-color: #4158D0;
-            color: #ffffff;
+            background-color: #418592;
+            color: white;
             padding: 12px 25px;
             border-radius: 30px;
             text-decoration: none;
@@ -97,7 +97,7 @@
         }
 
         .cta-button:hover {
-            background-color: #333399;
+            background-color: #103f45;
         }
 
         /* Mobile Styles */
@@ -127,48 +127,58 @@
 </head>
 
 <body>
-    <div class="email-container">
-        <div class="header">
-            <h1>🌟 CareSync AI - Health Reminder</h1>
-        </div>
+    <table role="presentation" width="100%" height="100%" cellspacing="0" cellpadding="0" border="0" class="container">
+        <tr>
+            <td>
+                <div class="email-container">
+                    <div class="header">
+                        <img class="logo" src="https://fastparcel-bucket-dev.s3.us-east-1.amazonaws.com/logo.png"
+                            alt="CareSync AI Logo" width="100" height="100">
+                        <h1>CareSync AI - Health Reminder</h1>
+                    </div>
 
-        <div class="content">
-            <p class="greeting">Hey {{ reminder.patient.username }} ✨</p>
+                    <div class="content">
+                        <p class="greeting">Hey {{ reminder.patient.username }} 👋</p>
 
-            <p class="text">Hope you're having an amazing day! 🌈 Just dropping by with a friendly reminder about your
-                health journey.</p>
+                        <p class="text">Hope you're having an amazing day! 🌈 Just dropping by with a friendly reminder
+                            about your
+                            health journey.</p>
 
-            <div class="reminder-box">
-                <p class="text">
-                    🕒 Time for: <strong>{{ reminder.title }}</strong><br>
-                    📝 Details: {{ reminder.description }}<br>
-                    ⏰ When: {{ reminder.scheduled_for }}
-                </p>
-            </div>
+                        <div class="reminder-box">
+                            <p class="text">
+                                🕒 Time for: <strong>{{ reminder.title }}</strong><br>
+                                📝 Details: {{ reminder.description }}<br>
+                                ⏰ When: {{ reminder.scheduled_for }}
+                            </p>
+                        </div>
 
-            <p class="text">Remember, taking care of yourself is the best investment you can make! 💪</p>
+                        <p class="text">Remember, taking care of yourself is the best investment you can make! 💪</p>
 
-            <p class="text">Need to make any changes or have questions? We're here to help!</p>
+                        <p class="text">Need to make any changes or have questions? We're here to help!</p>
 
-            <!-- Button using table structure for email compatibility -->
-            <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
-                <tr>
-                    <td align="center">
-                        <a href="{{ app_url }}/api/v1/reminders/{{ reminder.id }}/checkin/" class="cta-button">
-                            ✅ Mark as Done
-                        </a>
-                    </td>
-                </tr>
-            </table>
+                        <!-- Button using table structure for email compatibility -->
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td align="center">
+                                    <a href="{{ app_url }}/api/v1/reminders/{{ reminder.id }}/checkin/"
+                                        class="cta-button">
+                                        ✅ Mark as Done
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
 
-            <p class="text">Stay awesome!<br> Your Healthcare Team 🩺</p>
-        </div>
+                        <p class="text">Stay awesome!<br> Your Healthcare Team 🩺</p>
+                    </div>
 
-        <div class="footer">
-            <p>Your Healthcare Partner</p>
-            <p><a href="mailto:iamnetwork23@gmail.com">📧 support@healthcare.com</a></p>
-        </div>
-    </div>
+                    <div class="footer">
+                        <p>Your Healthcare Partner</p>
+                        <p><a href="mailto:iamnetwork23@gmail.com">📧 support@healthcare.com</a></p>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
 </body>
 
 </html>

@@ -15,6 +15,11 @@ class ActionPlan(models.Model):
         on_delete=models.CASCADE,
         related_name='action_plans'
     )
+    patient = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='action_plans'
+    )
     action = models.CharField(max_length=255)
     frequency = models.CharField(
         max_length=10,
@@ -49,6 +54,8 @@ class Reminder(models.Model):
     description = models.TextField()
     scheduled_for = models.DateTimeField()
     completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
     sequence_number = models.PositiveIntegerField()  # Track order of reminders
     created_at = models.DateTimeField(auto_now_add=True)
 

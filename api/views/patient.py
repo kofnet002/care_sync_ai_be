@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from apps.user.models import User
-from api.utils.permissions import IsAuthenticated
+from api.utils.permissions import IsAuthenticated, IsEmailVerified
 from api.serilizers.doctor import DoctorPatientSerializer
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
@@ -14,7 +14,7 @@ from api.pagination import BasicPagination
 from api.utils.permissions import IsPatient
 
 class AssignDoctorView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsEmailVerified]
     pagination_class = BasicPagination
     
     @extend_schema(
@@ -68,7 +68,7 @@ class AssignDoctorView(APIView):
         return Response(DoctorPatientSerializer(doctor_patient).data, status=status.HTTP_201_CREATED)
 
 class ReminderCheckInView(APIView):
-    permission_classes = []
+    permission_classes = [IsPatient,IsEmailVerified]
 
     @extend_schema(
         tags=['Reminders'],
@@ -84,7 +84,7 @@ class ReminderCheckInView(APIView):
             400: OpenApiResponse(description='Invalid check-in or already completed')
         }
     )
-    def get(self, request, reminder_id):
+    def post(self, request, reminder_id):
         reminder = get_object_or_404(Reminder, id=reminder_id)
         if ReminderService.handle_checkin(reminder):
             return Response({"detail": "Successfully checked in"})

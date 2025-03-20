@@ -14,13 +14,13 @@ from api.external.services import LLMService
 from api.serilizers.patient import ActionPlanSerializer, ReminderSerializer
 from apps.patient.models import Reminder, ActionPlan
 from api.external.services import ReminderService
-from api.utils.permissions import IsDoctor, DoctorPatientPermission
+from api.utils.permissions import IsDoctor, DoctorPatientPermission, IsEmailVerified
 from api.pagination import BasicPagination
 from rest_framework import generics
 from api.utils.permissions import IsAuthenticated
 
 class DoctorListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsEmailVerified]
     pagination_class = BasicPagination
     
     @extend_schema(
@@ -43,7 +43,7 @@ class DoctorListView(generics.ListAPIView):
         return paginator.get_paginated_response(serializer.data)
 
 class MyPatientsView(APIView):
-    permission_classes = [IsAuthenticated, IsDoctor]
+    permission_classes = [IsAuthenticated, IsDoctor, IsEmailVerified]
     pagination_class = BasicPagination
     
     @extend_schema(
@@ -65,7 +65,7 @@ class MyPatientsView(APIView):
 
 
 class CreateNoteView(APIView):
-    permission_classes = [IsAuthenticated, IsDoctor]
+    permission_classes = [IsAuthenticated, IsDoctor, IsEmailVerified]
     llm_service = LLMService()
 
     @extend_schema(
@@ -102,15 +102,27 @@ class CreateNoteView(APIView):
             doctor=request.user
         )
 
-        # Get the raw content first
-        raw_content = request.data.get('content')
-        if not raw_content:
-            return Response(
-                {"detail": "Content is required"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
         try:
+            """New patient notes cancel any previously scheduled actionable steps."""
+            # # Cancel previous action plans and their reminders
+            # previous_notes = DoctorNote.objects.filter(doctor_patient=doctor_patient)
+            # for note in previous_notes:
+            #     # Deactivate previous action plans
+            #     ActionPlan.objects.filter(note=note, is_active=True).update(is_active=False)
+            #     # Cancel associated reminders
+            #     Reminder.objects.filter(
+            #         action_plan__note=note,
+            #         completed=False
+            #     ).update(is_active=False)
+                
+            # Get the raw content first
+            raw_content = request.data.get('content')
+            if not raw_content:
+                return Response(
+                    {"detail": "Content is required"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
             # Process with LLM before encryption
             llm_response = self.llm_service.process_doctor_note(raw_content)
 
@@ -126,7 +138,7 @@ class CreateNoteView(APIView):
 
             # Create action plans and schedule reminders
             action_plans = [
-                ActionPlan.objects.create(note=note, **plan)
+                ActionPlan.objects.create(note=note, patient=doctor_patient.patient, is_active=True, **plan)
                 for plan in llm_response.get('action_plans', [])
             ]
             
@@ -136,8 +148,6 @@ class CreateNoteView(APIView):
             
             response_data = {
                 'note': DoctorNoteSerializer(note).data,
-                # 'checklist_items': ChecklistItemSerializer(checklist_items, many=True).data,
-                # 'action_plans': ActionPlanSerializer(action_plans, many=True).data
             }
 
             return Response(response_data, status=status.HTTP_201_CREATED)
@@ -149,7 +159,7 @@ class CreateNoteView(APIView):
             )
 
 class PatientNotesView(APIView):
-    permission_classes = [IsAuthenticated, IsDoctor, DoctorPatientPermission]
+    permission_classes = [IsAuthenticated, IsDoctor, DoctorPatientPermission, IsEmailVerified]
     
     @extend_schema(
         tags=['Doctor Notes'],
@@ -185,7 +195,7 @@ class PatientNotesView(APIView):
 
 
 class ListPatientNotesView(APIView):
-    permission_classes = [IsAuthenticated, IsDoctor, DoctorPatientPermission]
+    permission_classes = [IsAuthenticated, IsDoctor, DoctorPatientPermission, IsEmailVerified]
     pagination_class = BasicPagination
 
     @extend_schema(
@@ -232,7 +242,7 @@ class ListPatientNotesView(APIView):
             )
 
 class ActionPlanView(APIView):
-    permission_classes = [IsAuthenticated, IsDoctor, DoctorPatientPermission]
+    permission_classes = [IsAuthenticated, IsDoctor, DoctorPatientPermission, IsEmailVerified]
     pagination_class = BasicPagination
     
     @extend_schema(
@@ -267,7 +277,7 @@ class ActionPlanView(APIView):
         return paginator.get_paginated_response(serializer.data)
 
 class ActionPlanDetailView(APIView):
-    permission_classes = [IsAuthenticated, IsDoctor, DoctorPatientPermission]
+    permission_classes = [IsAuthenticated, IsDoctor, DoctorPatientPermission, IsEmailVerified]
     @extend_schema(
         tags=['Action Plans'],
         description='Get details of an action plan',
@@ -285,7 +295,7 @@ class ActionPlanDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK  )
 
 class ReminderView(APIView):
-    permission_classes = [IsAuthenticated, IsDoctor, DoctorPatientPermission]
+    permission_classes = [IsAuthenticated, IsDoctor, DoctorPatientPermission, IsEmailVerified]
     pagination_class = BasicPagination
     
     @extend_schema(

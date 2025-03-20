@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import BaseUserManager, PermissionsMixin
 from api.utils.encryption import NoteEncryption
-
+from django.utils import timezone
 
 # Create your models here.
 class CustomUserManager(BaseUserManager):
@@ -16,15 +16,17 @@ class CustomUserManager(BaseUserManager):
         """
         if not email:
             raise ValueError('Email is required')
+
+        # Set username to email if not provided
+        if 'username' not in extra_fields:
+            extra_fields['username'] = email
         
         email = self.normalize_email(str(email).strip())
-        username = email.split('@')[0]
         
         user_type = extra_fields.pop('user_type', User.UserType.DOCTOR)
         extra_fields.setdefault('is_active', True)
         
         user = self.model(
-            username=username,
             email=email, 
             user_type=user_type,
             **extra_fields
@@ -34,6 +36,7 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_user(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
         return self._create_user(email, password, **extra_fields)
 
@@ -42,6 +45,8 @@ class CustomUserManager(BaseUserManager):
             'is_active': True,
             'is_admin': True, 
             'is_staff': True,
+            'user_type': User.UserType.DOCTOR,
+            'email_verified': True,
             'is_superuser': True
         })
 
@@ -57,9 +62,15 @@ class User(AbstractUser, PermissionsMixin):
 
     public_key = models.BinaryField(null=True)
     private_key = models.BinaryField(null=True)
+    
     email = models.EmailField(_('Email'), null=False, blank=False, max_length=120, unique=True)
     user_type = models.CharField(_('User Type'), max_length=150, choices=UserType.choices, default=UserType.PATIENT)
     username = models.CharField(_('Username'), max_length=150, null=True, blank=True)
+    email_verified  = models.BooleanField(_('Email Verified'), default=False)
+    
+    otp = models.CharField(max_length=6, blank=True, null=True, editable=False)
+    otp_created_at  = models.DateTimeField(null=True, blank=True, editable=False)
+    
     is_active = models.BooleanField(_('Active'), default=True, help_text="Designates whether this user should be treated as active. Unselect this instead of deleting accounts.")
     is_admin = models.BooleanField(_('Employee'),default=False, help_text="Designates whether the user should be treated as an employee.")
     is_staff = models.BooleanField(_('Backend Access'), default=False, help_text="Designates whether the user can log into this admin site.")
@@ -77,6 +88,11 @@ class User(AbstractUser, PermissionsMixin):
     class Meta:
         verbose_name = _('User')
         verbose_name_plural = _('Users')
+        
+    def set_otp(self, otp):
+        self.otp = otp
+        self.otp_created_at = timezone.now()  # Use timezone-aware datetime
+        self.save()
     
     @property
     def get_name_from_email(self):
@@ -99,3 +115,15 @@ class User(AbstractUser, PermissionsMixin):
             self.public_key = public_pem
             self.save()
         return self.public_key, self.private_key
+    
+    
+class UserOTP(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    otp_secret = models.CharField(max_length=64, unique=True, editable=False)
+
+    def __str__(self):
+        return f"{self.user.username}'s OTP"
+
+    class Meta:
+        verbose_name = _("User OTP")
+        verbose_name_plural = _("Users OTP")
