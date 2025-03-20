@@ -6,21 +6,23 @@ from apps.doctor.models import DoctorPatient, DoctorNote, ChecklistItem
 from apps.patient.models import Reminder, ActionPlan
 
 class CustomUserAdmin(UserAdmin):
-    list_display = ('email', 'username', 'user_type', 'is_active', 'is_staff', 'is_superuser', 'last_login', 'date_joined')
-    list_display_links = ('email', 'username')
-    readonly_fields = ('date_joined', 'last_login')
+    list_display = ('email','full_name', 'user_type', 'is_active', 'is_staff', 'is_superuser', 'last_login', 'date_joined')
+    list_display_links = ('email', 'full_name')
+    readonly_fields = ('date_joined', 'last_login', 'public_key', 'private_key')
     list_filter = ('user_type', 'is_active', 'is_staff', 'is_superuser', 'groups')
-    search_fields = ('email', 'username')
-    ordering = ('email',)
+    search_fields = ('email', 'full_name')
+    ordering = ('date_joined',)
     filter_horizontal = ('groups', 'user_permissions',)
+
 
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        (_('Personal info'), {'fields': ('username', 'user_type')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name','username', 'user_type')}),
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
         }),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
+        (_('Keys'), {'fields': ('public_key', 'private_key')}),
     )
 
     add_fieldsets = (
@@ -36,7 +38,8 @@ class CustomUserAdmin(UserAdmin):
         return self.readonly_fields
 
 class DoctorPatientAdmin(admin.ModelAdmin):
-    list_display = ('id','doctor', 'patient', 'created_at')
+    list_display = ('doctor', 'patient', 'created_at')
+    list_display_links = ('doctor', 'patient')
     list_filter = ('created_at',)
     search_fields = ('doctor__email', 'patient__email')
     raw_id_fields = ('doctor', 'patient')
@@ -45,6 +48,7 @@ class DoctorPatientAdmin(admin.ModelAdmin):
 
 class ChecklistItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'note', 'task', 'is_completed')
+    list_display_links = ('note', 'task')
     list_filter = ('is_completed',)
     search_fields = ('task', 'note__content')
     raw_id_fields = ('note',)
@@ -52,6 +56,7 @@ class ChecklistItemAdmin(admin.ModelAdmin):
 
 class ActionPlanAdmin(admin.ModelAdmin):
     list_display = ('id', 'note', 'action', 'frequency', 'start_date', 'end_date', 'is_active')
+    list_display_links = ('note', 'action')
     list_filter = ('frequency', 'is_active')
     search_fields = ('action', 'note__content')
     raw_id_fields = ('note',)
@@ -59,11 +64,13 @@ class ActionPlanAdmin(admin.ModelAdmin):
 
 
 class DoctorNoteAdmin(admin.ModelAdmin):
-    list_display = ('id', 'doctor_patient', 'created_at', 'get_doctor', 'get_patient')
+    list_display = ('doctor_patient', 'created_at', 'get_doctor', 'get_patient')
+    list_display_links = ('doctor_patient',)
     list_filter = ('created_at',)
     search_fields = ('content', 'doctor_patient__doctor__email', 'doctor_patient__patient__email')
     raw_id_fields = ('doctor_patient',)
     date_hierarchy = 'created_at'
+    readonly_fields = ('content',)
 
     def get_doctor(self, obj):
         return obj.doctor_patient.doctor.email
@@ -78,6 +85,7 @@ class DoctorNoteAdmin(admin.ModelAdmin):
 
 class ReminderAdmin(admin.ModelAdmin):
     list_display = ('id', 'action_plan', 'get_patient', 'title', 'scheduled_for', 'completed')
+    list_display_links = ('action_plan',)
     list_filter = ('completed',)
     search_fields = ('title', 'action_plan__note__content', 'patient__email')
     raw_id_fields = ('action_plan', 'patient')

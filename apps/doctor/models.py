@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from apps.user.models import User
-
+from api.utils.encryption import NoteEncryption
 # Create your models here.
 class DoctorPatient(models.Model):
     doctor = models.ForeignKey(
@@ -32,7 +32,7 @@ class DoctorNote(models.Model):
         on_delete=models.CASCADE,
         related_name='notes'
     )
-    content = models.TextField()
+    content =  models.JSONField(default=dict)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -40,6 +40,50 @@ class DoctorNote(models.Model):
         if self.doctor_patient.doctor != self.doctor_patient.doctor:
             raise ValidationError("Doctor can only add notes for their patients")
 
+    def encrypt_note(self, raw_content: str):
+        """Encrypt note content for both doctor and patient"""
+        doctor = self.doctor_patient.doctor
+        patient = self.doctor_patient.patient
+                
+        # Ensure both users have encryption keys
+        doctor.generate_encryption_keys()
+        patient.generate_encryption_keys()
+        
+        # Encrypt for doctor
+        doctor_encrypted = NoteEncryption.encrypt_note(
+            raw_content, 
+            doctor.public_key
+        )
+        
+        # Encrypt for patient
+        patient_encrypted = NoteEncryption.encrypt_note(
+            raw_content, 
+            patient.public_key
+        )
+        
+        self.content = {
+            'doctor': doctor_encrypted,
+            'patient': patient_encrypted
+        }
+        self.save()
+    
+    def decrypt_note(self, user: User) -> str:
+        """Decrypt note content for authorized user"""
+        if user not in [self.doctor_patient.doctor, self.doctor_patient.patient]:
+            raise PermissionError("Unauthorized access to note")
+
+        user_type = 'doctor' if user.user_type == User.UserType.DOCTOR else 'patient'
+        
+        try:
+            encrypted_data = self.content.get(user_type)
+            if not encrypted_data:
+                raise ValueError(f"No encrypted data found for {user_type}")
+                
+            return NoteEncryption.decrypt_note(encrypted_data, user.private_key)
+        except Exception as e:
+            print(f"Decryption error: {str(e)}")
+            raise
+    
     class Meta:
         ordering = ['-created_at']
 
