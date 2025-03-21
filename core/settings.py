@@ -33,8 +33,6 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
 
-APP_URL = env('APP_URL')
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", default=0))
 
@@ -269,10 +267,7 @@ SWAGGER_SETTINGS = {
 
 AUTH_USER_MODEL = 'user.User'
 
-# Add after the existing settings
 GEMINI_API_KEY = env('GEMINI_API_KEY')
-
-
 
 # REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
 REDIS_HOST = os.getenv('REDIS_HOST', 'caresyncai_redis')
