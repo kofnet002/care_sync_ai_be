@@ -37,9 +37,8 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = bool(os.environ.get("DEBUG", default=0))
 
 ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(',')
-CORS_ORIGIN_WHITELIST = os.getenv('CORS_ORIGIN_WHITELIST', '').split(',')
-CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
-
+CORS_ORIGIN_WHITELIST = env('CORS_ORIGIN_WHITELIST', '').split(',')
+CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS', '').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -323,8 +322,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'noeljoel61@gmail.com'
-EMAIL_HOST_PASSWORD = 'lizgbannzucyhqvk'
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 
 EMAIL_TOKEN_EXPIRATION_MINUTES = int(os.getenv("EMAIL_TOKEN_EXPIRATION_MINUTES", 30))
 PASSWORD_TOKEN_EXPIRATION_MINUTES  = int(os.getenv("PASSWORD_TOKEN_EXPIRATION_MINUTES", 15))
