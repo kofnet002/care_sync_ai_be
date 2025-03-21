@@ -36,9 +36,9 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", default=0))
 
-ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(',')
-CORS_ORIGIN_WHITELIST = env('CORS_ORIGIN_WHITELIST', '').split(',')
-CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS', '').split(',')
+ALLOWED_HOSTS = env('ALLOWED_HOSTS', default=[])
+CORS_ORIGIN_WHITELIST = env('CORS_ORIGIN_WHITELIST', default=[])
+CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS', default=[])
 
 # Application definition
 INSTALLED_APPS = [
@@ -266,7 +266,7 @@ SWAGGER_SETTINGS = {
 
 AUTH_USER_MODEL = 'user.User'
 
-GEMINI_API_KEY = env('GEMINI_API_KEY')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
 # REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
 REDIS_HOST = os.getenv('REDIS_HOST', 'caresyncai_redis')
@@ -322,8 +322,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 EMAIL_TOKEN_EXPIRATION_MINUTES = int(os.getenv("EMAIL_TOKEN_EXPIRATION_MINUTES", 30))
 PASSWORD_TOKEN_EXPIRATION_MINUTES  = int(os.getenv("PASSWORD_TOKEN_EXPIRATION_MINUTES", 15))
