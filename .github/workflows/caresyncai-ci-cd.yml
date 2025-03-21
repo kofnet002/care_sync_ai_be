@@ -103,6 +103,8 @@ jobs:
           echo UI_DOMAIN="${{ secrets.UI_DOMAIN}}" >> .env
 
           echo GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY}}" >> .env
+          echo EMAIL_HOST_USER="${{ secrets.EMAIL_HOST_USER}}" >> .env
+          echo EMAIL_HOST_PASSWORD="${{ secrets.EMAIL_HOST_PASSWORD}}" >> .env
 
           echo WEB_IMAGE=${{ env.WEB_IMAGE }} >> .env
           echo NGINX_IMAGE=${{ env.NGINX_IMAGE }} >> .env
@@ -183,6 +185,8 @@ jobs:
   #         echo UI_DOMAIN="${{ secrets.UI_DOMAIN}}" >> .env
 
   #         echo GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY}}" >> .env
+  # echo EMAIL_HOST_USER="${{ secrets.EMAIL_HOST_USER}}" >> .env
+  # echo EMAIL_HOST_PASSWORD="${{ secrets.EMAIL_HOST_PASSWORD}}" >> .env
 
   #         echo WEB_IMAGE=${{ env.WEB_IMAGE }} >> .env
   #         echo NGINX_IMAGE=${{ env.NGINX_IMAGE }} >> .env
