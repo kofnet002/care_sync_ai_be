@@ -59,7 +59,7 @@ def send_reminder_email(reminder_id):
             mail_subject = f"Reminder: {reminder.title} - Day {reminder.sequence_number}"
             message = render_to_string('reminder_copy/reminder_template.html', {
                 'reminder': reminder,
-                'app_url': settings.UI_DOMAIN
+                'ui_domain': settings.UI_DOMAIN
             })
             to_email = reminder.patient.email
             send_email  = EmailMultiAlternatives(mail_subject, message, settings.EMAIL_HOST_USER, [to_email])

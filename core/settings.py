@@ -272,26 +272,10 @@ AUTH_USER_MODEL = 'user.User'
 # Add after the existing settings
 GEMINI_API_KEY = env('GEMINI_API_KEY')
 
-# Celery Configuration
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_RESULT_PERSISTENT = True
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = TIME_ZONE
-CELERY_BEAT_SCHEDULE = 'django_celery_beat.schedulers:DatabaseScheduler'
 
-# CELERY BEAT SETTINGS
-# CELERY_BEAT_SCHEDULE = {
-#     "Send Reminder Emails": {
-#         "task": "users.tasks.check_and_send_due_reminders",
-#         "schedule": crontab(minute="*/5"),  # Run every 5 minutes
-#     }
-# }
 
-REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
-# REDIS_HOST = os.getenv('REDIS_HOST', 'redis_server')
+# REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
+REDIS_HOST = os.getenv('REDIS_HOST', 'caresyncai_redis')
 REDIS_PORT = os.getenv('REDIS_PORT', 6379)
 REDIS_SSL  =  bool(int(os.getenv('REDIS_SSL', 0)))
 REDIS_PASS = os.getenv('REDIS_PRIMARY_PASS', '')
@@ -314,6 +298,23 @@ CHANNEL_LAYERS = {
     },
 }
 
+# Celery Configuration
+CELERY_BROKER_URL = f'redis://{REDIS_HOST}:6379/0'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_RESULT_PERSISTENT = True
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_BEAT_SCHEDULE = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# CELERY BEAT SETTINGS
+# CELERY_BEAT_SCHEDULE = {
+#     "Send Reminder Emails": {
+#         "task": "users.tasks.check_and_send_due_reminders",
+#         "schedule": crontab(minute="*/5"),  # Run every 5 minutes
+#     }
+# }
 
 # For celery
 if REDIS_SSL:

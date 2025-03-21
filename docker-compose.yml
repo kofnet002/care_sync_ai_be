@@ -1,0 +1,119 @@
+# use ports when you want to access the server directly, that's when nginx hasn't been configured
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    container_name: caresyncai_server
+    restart: always
+    volumes:
+      - .:/usr/src/app
+      - static_volume:/usr/src/app/staticfiles
+      - media_volume:/usr/src/app/media
+    # ports:
+    #   - 8000:8000
+    expose:
+      - 8000
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - backend
+    mem_limit: 2g
+
+  db:
+    build:
+      context: ./docker/db
+    container_name: caresyncai_db
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - 5434:5432
+    env_file:
+      - .env
+    networks:
+      - backend
+    mem_limit: 1g
+
+  redis:
+    build:
+      context: ./docker/redis
+    container_name: caresyncai_redis
+    restart: always
+    command: redis-server --appendonly yes
+    ports:
+      - "6380:6379"
+    volumes:
+      - ./redis-volume:/data
+    networks:
+      - backend
+    mem_limit: 2.5g
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: caresyncai_celery_worker
+    restart: always
+    command: ./start-celeryworker.sh
+    volumes:
+      - .:/usr/src/app
+    env_file: .env
+    # env_file:
+    #   - ./.env.dev
+    depends_on:
+      - redis
+      - db
+      - web
+      - nginx
+    networks:
+      - backend
+    mem_limit: 2g
+
+  # celery_beat:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: caresynai_celery_beat
+  #   restart: always
+  #   command: ./start-celerybeat.sh
+  #   volumes:
+  #     - .:/usr/src/app
+  #   env_file: .env
+  #   # env_file:
+  #   #   - ./.env.dev
+  #   depends_on:
+  #     - redis
+  #     - db
+  #     - web
+  #     - nginx
+  #   networks:
+  #     - backend
+
+  nginx:
+    build:
+      context: ./docker/nginx
+    container_name: caresyncai_nginx
+    restart: always
+    volumes:
+      - static_volume:/usr/src/app/staticfiles
+      - media_volume:/usr/src/app/media
+    ports:
+      - 80:80
+    depends_on:
+      - web
+    networks:
+      - backend
+    mem_limit: 256mb
+
+volumes:
+  postgres_data: # Change this volume name
+  static_volume:
+  media_volume:
+
+networks:
+  backend:
+    driver: bridge
