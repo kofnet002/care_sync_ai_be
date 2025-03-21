@@ -40,7 +40,6 @@ ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(',')
 CORS_ORIGIN_WHITELIST = env('CORS_ORIGIN_WHITELIST', '').split(',')
 CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS', '').split(',')
 
-
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
