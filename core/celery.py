@@ -40,7 +40,7 @@ def debug_task(self):
 # celery -A <proj_name>.celery worker -l info 
 
 # start the celery beat
-# celery -A <proj_name> beat -l info@app
+# celery -A your_project_name beat --loglevel=info
 
 # view registered tasks
 # celery -A <proj_name> inspect registered

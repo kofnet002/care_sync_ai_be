@@ -1,0 +1,48 @@
+# Spin down the development containers:
+sudo docker compose -f docker-compose.yml down -v
+
+# Spin up in detach mode
+sudo docker compose -f docker-compose.yml up -d --build
+
+# Make migrations while the container is spinning
+sudo docker compose -f docker-compose.yml exec web python manage.py migrate --noinput
+
+# Collect static
+sudo docker compose -f docker-compose.yml exec web python manage.py collectstatic --no-input --clear
+
+# make migration
+sudo docker compose -f docker-compose.yml exec web python manage.py migrate
+
+# create superuser
+sudo docker compose -f docker-compose.yml exec web python manage.py createsuperuser
+
+# View logs
+sudo docker compose -f docker-compose.yml logs -f
+
+
+CI/CD with Github actions
+**************************
+- Build and tag the images:
+sudo docker build -f app/Dockerfile -t ghcr.io/<USERNAME>/<REPOSITORY_NAME>/web:latest ./
+# example:
+sudo docker build -f ./Dockerfile -t ghcr.io/kofnet002/caresyncai_backend/web:latest ./
+sudo docker tag caresyncai-db ghcr.io/kofnet002/caresyncai_backend/db:latest
+sudo docker tag caresyncai-nginx ghcr.io/kofnet002/caresyncai_backend/nginx:latest
+sudo docker tag caresyncai-redis ghcr.io/kofnet002/caresyncai_backend/redis:latest
+sudo docker tag caresyncai-celery_worker ghcr.io/kofnet002/caresyncai_backend/celery_worker:latest
+sudo docker tag caresyncai-celery_beat ghcr.io/kofnet002/caresyncai_backend/celery_beat:latest
+
+- Next, using your personal access token, authenticate to GitHub Packages with Docker:
+sudo docker login ghcr.io -u <USERNAME> -p <TOKEN>
+# example:
+# sudo docker login ghcr.io -u testdrivenio -p ce70f1d4a3a906ce8ac24caa6870fd29f2273d30
+
+- Push the image to the Container registry on GitHub Packages:
+sudo docker push ghcr.io/<USERNAME>/<REPOSITORY_NAME>/web:latest
+# example:
+sudo docker push ghcr.io/kofnet002/caresyncai_backend/web:latest
+sudo docker push ghcr.io/kofnet002/caresyncai_backend/nginx:latest
+sudo docker push ghcr.io/kofnet002/caresyncai_backend/db:latest
+sudo docker push ghcr.io/kofnet002/caresyncai_backend/redis:latest
+sudo docker push ghcr.io/kofnet002/caresyncai_backend/celery_worker:latest
+sudo docker push ghcr.io/kofnet002/caresyncai_backend/celery_beat:latest

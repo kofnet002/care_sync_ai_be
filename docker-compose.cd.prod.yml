@@ -1,0 +1,105 @@
+services:
+  web:
+    image: "${WEB_IMAGE}"
+    container_name: caresyncai_server
+    restart: always
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - static_volume:/usr/src/app/staticfiles
+      - media_volume:/usr/src/app/media
+    expose:
+      - 8000
+    depends_on:
+      - db
+    env_file: .env
+    # env_file:
+    #   - ./.env.dev
+    networks:
+      - backend
+    mem_limit: 2g
+
+  db:
+    image: "${DB_IMAGE}"
+    container_name: caresyncai_db
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - 5434:5432
+    env_file: .env
+    # env_file:
+    #   - ./.env.dev
+    networks:
+      - backend
+    mem_limit: 1g
+
+  redis:
+    image: "${REDIS_IMAGE}"
+    container_name: caresyncai_redis
+    restart: always
+    command: redis-server --appendonly yes
+    ports:
+      - "6380:6379"
+    volumes:
+      - ./redis-volume:/data
+    networks:
+      - backend
+    mem_limit: 512mb
+
+  celery_worker:
+    image: "${CELERY_WORKER}"
+    container_name: caresyncai_celery_worker
+    restart: always
+    command: ./start-celeryworker.sh
+    env_file: .env
+    # env_file:
+    #   - ./.env.dev
+    depends_on:
+      - redis
+      - db
+      - web
+      - nginx
+    networks:
+      - backend
+    mem_limit: 4g
+
+  # celery_beat:
+  #   image: "${CELERY_BEAT}"
+  #   container_name: caresynai_celery_beat
+  #   restart: always
+  #   command: ./start-celerybeat.sh
+  #   env_file: .env
+  #   # env_file:
+  #   #   - ./.env.dev
+  #   depends_on:
+  #     - redis
+  #     - db
+  #     - web
+  #     - nginx
+  #   networks:
+  #     - backend
+  #   mem_limit: 512m
+
+  nginx:
+    image: "${NGINX_IMAGE}"
+    container_name: caresyncai_nginx
+    restart: always
+    volumes:
+      - static_volume:/usr/src/app/staticfiles
+      - media_volume:/usr/src/app/media
+    ports:
+      - 80:80
+    depends_on:
+      - web
+    networks:
+      - backend
+    mem_limit: 256mb
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+
+networks:
+  backend:
+    driver: bridge
