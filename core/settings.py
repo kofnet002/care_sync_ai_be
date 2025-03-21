@@ -266,7 +266,7 @@ SWAGGER_SETTINGS = {
 
 AUTH_USER_MODEL = 'user.User'
 
-GEMINI_API_KEY = env('GEMINI_API_KEY')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
 # REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
 REDIS_HOST = os.getenv('REDIS_HOST', 'caresyncai_redis')
