@@ -23,7 +23,7 @@ services:
     container_name: caresyncai_db
     restart: always
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - caresyncai_postgres_data:/var/lib/postgresql/data/
     ports:
       - 5434:5432
     env_file: .env
@@ -96,7 +96,7 @@ services:
     mem_limit: 256mb
 
 volumes:
-  postgres_data:
+  caresyncai_postgres_data:
   static_volume:
   media_volume:
 
