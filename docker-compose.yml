@@ -8,9 +8,9 @@ services:
     container_name: caresyncai_server
     restart: always
     volumes:
-      - .:/usr/src/app
-      - static_volume:/usr/src/app/staticfiles
-      - media_volume:/usr/src/app/media
+      - .:/usr/src/app/caresyncai
+      - static_volume:/usr/src/app/caresyncai/staticfiles
+      - media_volume:/usr/src/app/caresyncai/media
     # ports:
     #   - 8000:8000
     expose:
@@ -60,7 +60,7 @@ services:
     restart: always
     command: ./start-celeryworker.sh
     volumes:
-      - .:/usr/src/app
+      - .:/usr/src/app/caresyncai
     env_file: .env
     # env_file:
     #   - ./.env.dev
@@ -81,7 +81,7 @@ services:
   #   restart: always
   #   command: ./start-celerybeat.sh
   #   volumes:
-  #     - .:/usr/src/app
+  #     - .:/usr/src/app/caresyncai
   #   env_file: .env
   #   # env_file:
   #   #   - ./.env.dev
@@ -99,8 +99,8 @@ services:
     container_name: caresyncai_nginx
     restart: always
     volumes:
-      - static_volume:/usr/src/app/staticfiles
-      - media_volume:/usr/src/app/media
+      - static_volume:/usr/src/app/caresyncai/staticfiles
+      - media_volume:/usr/src/app/caresyncai/media
     ports:
       - 81:80
     depends_on:

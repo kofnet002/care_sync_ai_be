@@ -28,7 +28,7 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 FROM python:3.10-slim-buster
 
 ENV HOME=/user/src \
-    APP_HOME=/usr/src/app \
+    APP_HOME=/usr/src/app/caresyncai \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH"
@@ -67,7 +67,7 @@ RUN dos2unix $APP_HOME/entrypoint.sh && \
     chmod +x $APP_HOME/entrypoint.sh && \
     ls -l $APP_HOME/entrypoint.sh  # Debugging: Check permissions
 
-RUN chmod +x /usr/src/app/entrypoint.sh
+RUN chmod +x /usr/src/app/caresyncai/entrypoint.sh
 
 # Copy application
 COPY . .

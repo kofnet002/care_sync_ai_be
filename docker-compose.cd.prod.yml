@@ -5,8 +5,8 @@ services:
     restart: always
     command: python manage.py runserver 0.0.0.0:8001
     volumes:
-      - static_volume:/usr/src/app/staticfiles
-      - media_volume:/usr/src/app/media
+      - static_volume:/usr/src/app/caresyncai/staticfiles
+      - media_volume:/usr/src/app/caresyncai/media
     expose:
       - 8001
     depends_on:
@@ -85,8 +85,8 @@ services:
     container_name: caresyncai_nginx
     restart: always
     volumes:
-      - static_volume:/usr/src/app/staticfiles
-      - media_volume:/usr/src/app/media
+      - static_volume:/usr/src/app/caresyncai/staticfiles
+      - media_volume:/usr/src/app/caresyncai/media
     ports:
       - 81:80
     depends_on:
