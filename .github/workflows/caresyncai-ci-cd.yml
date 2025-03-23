@@ -201,8 +201,9 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-          echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          ssh-add ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SERVER_IP_ADDRESS }} >> ~/.ssh/known_hosts
 
       - name: Test SSH Connection
