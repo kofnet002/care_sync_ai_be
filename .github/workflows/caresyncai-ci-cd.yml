@@ -147,111 +147,111 @@ jobs:
           docker push "${{ env.CELERY_WORKER }}"
           # docker push "${{ env.CELERY_BEAT }}"
 
-  # deploy-production:
-  #   name: Deploy to Production Server
-  #   runs-on: ubuntu-latest
-  #   needs: build-production
-  #   if: github.ref == 'refs/heads/main'
-  #   steps:
-  #     - name: Checkout master
-  #       uses: actions/checkout@v2
-  #     - name: Add environment variables to .env
-  #       run: |
-  #         echo DEBUG=1 >> .env
-  #         echo DATABASE="postgres" >> .env
-  #         echo POSTGRES_USER=postgres >> .env
-  #         echo POSTGRES_DB=postgres >> .env
-  #         echo POSTGRES_PASSWORD=postgres >> .env
+  deploy-production:
+    name: Deploy to Production Server
+    runs-on: ubuntu-latest
+    needs: build-production
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v2
+      - name: Add environment variables to .env
+        run: |
+          echo DEBUG=1 >> .env
+          echo DATABASE="postgres" >> .env
+          echo POSTGRES_USER=postgres >> .env
+          echo POSTGRES_DB=postgres >> .env
+          echo POSTGRES_PASSWORD=postgres >> .env
 
-  #         echo SECRET_KEY="${{ secrets.SECRET_KEY }}" >> .env
+          echo SECRET_KEY="${{ secrets.SECRET_KEY }}" >> .env
 
-  #         echo DB_USER=${{ secrets.DB_USER }} >> .env
-  #         echo DB_PASS=${{ secrets.DB_PASS }} >> .env
-  #         echo DB_NAME=${{ secrets.DB_NAME }} >> .env
-  #         echo DB_HOST=${{ secrets.DB_HOST }} >> .env
-  #         echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-  #         echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
-  #         echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
-  #         echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
+          echo DB_USER=${{ secrets.DB_USER }} >> .env
+          echo DB_PASS=${{ secrets.DB_PASS }} >> .env
+          echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+          echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+          echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+          echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
+          echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+          echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
 
-  #         echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
-  #         echo CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }} >> .env
-  #         echo CSRF_TRUSTED_ORIGINS=${{ secrets.CSRF_TRUSTED_ORIGINS }} >> .env
+          echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
+          echo CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }} >> .env
+          echo CSRF_TRUSTED_ORIGINS=${{ secrets.CSRF_TRUSTED_ORIGINS }} >> .env
 
-  #         echo REDIS_HOST="${{ secrets.REDIS_HOST}}" >> .env
-  #         echo REDIS_PORT="${{ secrets.REDIS_PORT}}" >> .env
-  #         echo EMAIL_TOKEN_EXPIRATION_MINUTES="${{ secrets.EMAIL_TOKEN_EXPIRATION_MINUTES}}" >> .env
-  #         echo PASSWORD_TOKEN_EXPIRATION_MINUTES="${{ secrets.PASSWORD_TOKEN_EXPIRATION_MINUTES}}" >> .env
-  #         echo UI_DOMAIN="${{ secrets.UI_DOMAIN}}" >> .env
+          echo REDIS_HOST="${{ secrets.REDIS_HOST}}" >> .env
+          echo REDIS_PORT="${{ secrets.REDIS_PORT}}" >> .env
+          echo EMAIL_TOKEN_EXPIRATION_MINUTES="${{ secrets.EMAIL_TOKEN_EXPIRATION_MINUTES}}" >> .env
+          echo PASSWORD_TOKEN_EXPIRATION_MINUTES="${{ secrets.PASSWORD_TOKEN_EXPIRATION_MINUTES}}" >> .env
+          echo UI_DOMAIN="${{ secrets.UI_DOMAIN}}" >> .env
 
-  #         echo GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY}}" >> .env
-  # echo EMAIL_HOST_USER="${{ secrets.EMAIL_HOST_USER}}" >> .env
-  # echo EMAIL_HOST_PASSWORD="${{ secrets.EMAIL_HOST_PASSWORD}}" >> .env
+          echo GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY}}" >> .env
+          echo EMAIL_HOST_USER="${{ secrets.EMAIL_HOST_USER}}" >> .env
+          echo EMAIL_HOST_PASSWORD="${{ secrets.EMAIL_HOST_PASSWORD}}" >> .env
 
-  #         echo WEB_IMAGE=${{ env.WEB_IMAGE }} >> .env
-  #         echo NGINX_IMAGE=${{ env.NGINX_IMAGE }} >> .env
-  #         echo DB_IMAGE=${{ env.DB_IMAGE }} >> .env
-  #         echo REDIS_IMAGE=${{ env.REDIS_IMAGE }} >> .env
-  #         echo CELERY_WORKER=${{ env.CELERY_WORKER }} >> .env
-  #         # echo CELERY_BEAT=${{ env.CELERY_BEAT }} >> .env
+          echo WEB_IMAGE=${{ env.WEB_IMAGE }} >> .env
+          echo NGINX_IMAGE=${{ env.NGINX_IMAGE }} >> .env
+          echo DB_IMAGE=${{ env.DB_IMAGE }} >> .env
+          echo REDIS_IMAGE=${{ env.REDIS_IMAGE }} >> .env
+          echo CELERY_WORKER=${{ env.CELERY_WORKER }} >> .env
+          # echo CELERY_BEAT=${{ env.CELERY_BEAT }} >> .env
 
-  #     - name: Add the private SSH key to the ssh-agent
-  #       env:
-  #         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-  #       run: |
-  #         mkdir -p ~/.ssh
-  #         ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-  #         echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
-  #         chmod 600 ~/.ssh/id_rsa
-  #         ssh-keyscan -H ${{ secrets.SERVER_IP_ADDRESS }} >> ~/.ssh/known_hosts
+      - name: Add the private SSH key to the ssh-agent
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: |
+          mkdir -p ~/.ssh
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_IP_ADDRESS }} >> ~/.ssh/known_hosts
 
-  #     - name: Test SSH Connection
-  #       run: ssh -v -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_ADDRESS }} "echo SSH connection successful"
+      - name: Test SSH Connection
+        run: ssh -v -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_ADDRESS }} "echo SSH connection successful"
 
-  #     - name: Deploy to Production VPS Server
-  #       env:
-  #         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-  #       run: |
-  #         scp  -o StrictHostKeyChecking=no -r ./.env ./docker-compose.cd.prod.yml ubuntu@${{ secrets.SERVER_IP_ADDRESS }}:/app
-  #         ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_ADDRESS }} << 'ENDSSH'
-  #           cd /app
-  #           source .env
+      - name: Deploy to Production VPS Server
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: |
+          scp  -o StrictHostKeyChecking=no -r ./.env ./docker-compose.cd.prod.yml ubuntu@${{ secrets.SERVER_IP_ADDRESS }}:/app
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_ADDRESS }} << 'ENDSSH'
+            cd /app
+            source .env
 
-  #           docker login ghcr.io -u ${{ secrets.NAMESPACE }} -p ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+            docker login ghcr.io -u ${{ secrets.NAMESPACE }} -p ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  #           docker stop caresyncai_server || true
-  #           docker rm caresyncai_server -f || true
+            docker stop caresyncai_server || true
+            docker rm caresyncai_server -f || true
 
-  #           docker stop caresyncai_nginx || true
-  #           docker rm caresyncai_nginx -f || true
+            docker stop caresyncai_nginx || true
+            docker rm caresyncai_nginx -f || true
 
-  #           docker stop caresyncai_db || true
-  #           docker rm caresyncai_db -f || true
+            docker stop caresyncai_db || true
+            docker rm caresyncai_db -f || true
 
-  #           docker stop caresyncai_redis || true
-  #           docker rm caresyncai_redis -f || true
+            docker stop caresyncai_redis || true
+            docker rm caresyncai_redis -f || true
 
-  #           docker stop caresyncai_redis_celery_worker
-  #           docker rm caresyncai_redis_celery_worker -f
+            docker stop caresyncai_redis_celery_worker
+            docker rm caresyncai_redis_celery_worker -f
 
-  #           # docker stop caresyncai_redis_celery_beat
-  #           # docker rm caresyncai_redis_celery_beat -f
+            # docker stop caresyncai_redis_celery_beat
+            # docker rm caresyncai_redis_celery_beat -f
 
-  #           docker images -q | xargs -r docker rmi -f
+            docker images -q | xargs -r docker rmi -f
 
-  #           docker pull $DB_IMAGE
-  #           docker pull $WEB_IMAGE
-  #           docker pull $NGINX_IMAGE
-  #           docker pull $REDIS_IMAGE
-  #           docker pull $CELERY_WORKER
-  #           # docker pull $CELERY_BEAT
+            docker pull $DB_IMAGE
+            docker pull $WEB_IMAGE
+            docker pull $NGINX_IMAGE
+            docker pull $REDIS_IMAGE
+            docker pull $CELERY_WORKER
+            # docker pull $CELERY_BEAT
 
-  #           DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker compose -f ./docker-compose.cd.prod.yml up -d --remove-orphans
+            DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker compose -f ./docker-compose.cd.prod.yml up -d --remove-orphans
 
-  #           docker exec -t caresyncai_server python manage.py migrate
-  #           docker compose -f ./docker-compose.cd.prod.yml exec web python manage.py migrate --noinput
+            docker exec -t caresyncai_server python manage.py migrate
+            docker compose -f ./docker-compose.cd.prod.yml exec web python manage.py migrate --noinput
 
-  #           docker exec -t caresyncai_server python manage.py collectstatic --noinput
-  #           docker exec -t caresyncai_server python manage.py migrate --noinput
+            docker exec -t caresyncai_server python manage.py collectstatic --noinput
+            docker exec -t caresyncai_server python manage.py migrate --noinput
 
-  #         ENDSSH
+          ENDSSH

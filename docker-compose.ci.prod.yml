@@ -9,7 +9,7 @@ services:
     image: "${WEB_IMAGE}"
     container_name: caresyncai_server
     restart: always
-    command: python manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:8001
     volumes:
       - .:/usr/src/app
       - static_volume:/usr/src/app/staticfiles
@@ -17,7 +17,7 @@ services:
     # ports:
     #   - 8000:8000
     expose:
-      - 8000
+      - 8001
     env_file:
       - .env
     depends_on:
@@ -121,7 +121,7 @@ services:
       - static_volume:/usr/src/app/staticfiles
       - media_volume:/usr/src/app/media
     ports:
-      - 80:80
+      - 81:80
     depends_on:
       - web
     networks:

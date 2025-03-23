@@ -46,3 +46,32 @@ sudo docker push ghcr.io/kofnet002/caresyncai_backend/db:latest
 sudo docker push ghcr.io/kofnet002/caresyncai_backend/redis:latest
 sudo docker push ghcr.io/kofnet002/caresyncai_backend/celery_worker:latest
 sudo docker push ghcr.io/kofnet002/caresyncai_backend/celery_beat:latest
+
+
+AWS ELASTIC BEANSTALK
+*************************
+pip install awsebcli
+eb init
+eb create
+eb setenv key=value key=value key=value
+eb deploy
+eb restart
+
+eb ssh --setup
+cd /var/app/current
+docker ps
+docker exec -it <container_id> python manage.py migrate
+docker exec -it <container_id> python manage.py createsuperuser
+
+
+Tag & Push local repo/images to amazon Elastic Container Registry
+*****************************************************************
+1. Create ECR repo
+2. Update the "push-to-ecr.sh" file in the root path
+    - update the file with the necessary credentials, (ECR_URI, ECR_REPO LOCAL_REPOS & ECR_TOKEN)
+    - install awscli "https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html" and configure aws credentials if you haven't, "aws configure"
+    - run this command in the terminal - aws ecr get-login-password --region us-east-1
+    - replace the "ECR_TOKEN=$(aws ecr get-login-password --region us-east-1)" with the output from the above command
+
+
+
