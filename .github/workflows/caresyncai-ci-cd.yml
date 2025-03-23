@@ -213,9 +213,9 @@ jobs:
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
-          scp  -o StrictHostKeyChecking=no -r ./.env ./docker-compose.cd.prod.yml ubuntu@${{ secrets.SERVER_IP_ADDRESS }}:/app
+          scp  -o StrictHostKeyChecking=no -r ./.env ./docker-compose.cd.prod.yml ubuntu@${{ secrets.SERVER_IP_ADDRESS }}:/app/caresyncai
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_ADDRESS }} << 'ENDSSH'
-            cd /app
+            cd /app/caresyncai
             source .env
 
             docker login ghcr.io -u ${{ secrets.NAMESPACE }} -p ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -238,7 +238,8 @@ jobs:
             # docker stop caresyncai_redis_celery_beat
             # docker rm caresyncai_redis_celery_beat -f
 
-            docker images -q | xargs -r docker rmi -f
+            # docker images -q | xargs -r docker rmi -f
+            docker images | grep caresyncai | awk '{print $3}' | xargs -r docker rmi -f
 
             docker pull $DB_IMAGE
             docker pull $WEB_IMAGE
