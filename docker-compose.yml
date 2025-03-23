@@ -31,7 +31,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
-      - 5434:5432
+      - 5431:5432
     env_file:
       - .env
     networks:
@@ -45,7 +45,7 @@ services:
     restart: always
     command: redis-server --appendonly yes
     ports:
-      - "6380:6379"
+      - "6381:6379"
     volumes:
       - ./redis-volume:/data
     networks:
