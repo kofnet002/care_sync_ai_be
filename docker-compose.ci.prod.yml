@@ -118,6 +118,7 @@ services:
     container_name: caresyncai_nginx
     restart: always
     volumes:
+      - ./docker/nginx/caresyncai.conf:/etc/nginx/conf.d/default.conf
       - static_volume:/usr/src/app/caresyncai/staticfiles
       - media_volume:/usr/src/app/caresyncai/media
     ports:
