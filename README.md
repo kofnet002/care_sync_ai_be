@@ -24,48 +24,95 @@ CareSyncAI is a Django REST Framework-based API for managing hospital operations
   - Customizable schedules
   - End-to-end encrypted notes
 
-## Setup
+## Basic Setup
 
 1. Clone the repository
-2. Create and activate virtual environment
-3. Install dependencies:
+    ```bash
+    https://github.com/kofnet002/care_sync_ai_be
+    ```
+    
+```You need to be an admin before see your endpoints```
+
+## Approach 1 of accessing application
+
+1. Create virtual environment:
+    ```bash
+    python3 -m venv venv
+    ```
+2. Activate virtual environment:
+    ```bash
+    . venv/bin/activate
+    ```
+3. Create an `.env` file in the root folder and copy the `keys` from `.env.example` file and add the necessary `values`
+
+4. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-4. Set up environment variables:
-   ```bash
-   cp .env.example .env
-   ```
 5. Run migrations:
    ```bash
-   python manage.py migrate
+   python3 manage.py migrate
    ```
 6. Start development server:
    ```bash
-   python manage.py runserver
+   python3 manage.py runserver
    ```
+7. Create superuser to access the admin dashboard
+    ```bash
+    python3 manage.py createsuperuser
+    ```
+8. Access project and admin dashboard using the following links respectively
+  `localhost:8000` & `localhost:8000/admin/`
+
+
+## Apporoach 2 (Docker Approach)
+
+
+1. Running using docker approach
+    ```bash
+    sudo docker compose -f docker-compose.yml up -d --build
+    ```
+2. Make migrations
+    ```bash
+    sudo docker compose -f docker-compose.yml exec web python manage.py migrate
+    ```
+3. Create superuser
+    ```bash
+    sudo docker compose -f docker-compose.yml exec web python manage.py createsuperuser
+    ```
+4. Then access app on `localhost`
+
+5. View logs
+    ```bash
+    sudo docker compose -f docker-compose.yml logs -f
+    ```
+
+
+
 
 ## API Documentation
 
 Access the interactive API docs at:
-- Swagger UI: `/api/schema/swagger-ui/`
-- ReDoc: `/api/schema/redoc/`
+- Swagger UI: `/`
+<!-- - ReDoc: `/api/schema/redoc/` -->
 
 ## Key Endpoints
 
 - **Authentication**
-  - POST `/api/auth/register/` - User registration
-  - POST `/api/auth/login/` - User login
-  - POST `/api/auth/refresh/` - Refresh JWT token
+  - POST `/api/v1/auth/register/` - User registration
+  - POST `/api/v1/auth/login/` - User login
+  - POST `/api/v1/auth/superuser/register/` - Create superuser
+  - POST `/api/v1/auth/refresh/` - Refresh JWT token
+
 
 - **Patient-Doctor**
-  - GET `/api/doctors/` - List available doctors
-  - POST `/api/doctors/assign/` - Assign doctor to patient
-  - GET `/api/doctors/my-patients/` - Get doctor's patients
+  - GET `/api/v1/doctors/` - List available doctors
+  - POST `/api/v1/doctors/assign/` - Assign doctor to patient
+  - GET `/api/v1/doctors/my-patients/` - Get doctor's patients
 
 - **Reminders**
-  - POST `/api/reminders/{id}/checkin/` - Check-in for reminder
-  - GET `/api/reminders/` - List reminders
+  - POST `/api/v1/reminders/{id}/checkin/` - Check-in for reminder
+  - GET `/api/v1/reminders/` - List reminders
 
 ## Technology Stack
 

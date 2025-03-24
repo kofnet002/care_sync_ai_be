@@ -208,7 +208,7 @@ REST_FRAMEWORK = {
 
 # Spectacular settings
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'CareSyncAI API',
+    'TITLE': 'CareSyncAI Hospital Management System API',
     'DESCRIPTION': 'CareSyncAI Hospital Management System API based on the OpenAPI 3.0 specification.',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
@@ -268,8 +268,8 @@ AUTH_USER_MODEL = 'user.User'
 
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
-# REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
 REDIS_HOST = os.getenv('REDIS_HOST', 'caresyncai_redis')
+# REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
 REDIS_PORT = os.getenv('REDIS_PORT', 6379)
 REDIS_SSL  =  bool(int(os.getenv('REDIS_SSL', 0)))
 REDIS_PASS = os.getenv('REDIS_PRIMARY_PASS', '')
