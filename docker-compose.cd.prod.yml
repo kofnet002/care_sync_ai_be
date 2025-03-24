@@ -3,12 +3,12 @@ services:
     image: "${WEB_IMAGE}"
     container_name: caresyncai_server
     restart: always
-    command: python manage.py runserver 0.0.0.0:8001
+    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - static_volume:/usr/src/app/caresyncai/staticfiles
       - media_volume:/usr/src/app/caresyncai/media
     expose:
-      - 8001
+      - 8000
     depends_on:
       - db
     env_file: .env
@@ -25,7 +25,7 @@ services:
     volumes:
       - caresyncai_postgres_data:/var/lib/postgresql/data/
     ports:
-      - 5431:5432
+      - 5434:5432
     env_file: .env
     # env_file:
     #   - ./.env.dev
@@ -39,7 +39,7 @@ services:
     restart: always
     command: redis-server --appendonly yes
     ports:
-      - "6381:6379"
+      - "6380:6379"
     volumes:
       - ./redis-volume:/data
     networks:
@@ -89,7 +89,7 @@ services:
       - static_volume:/usr/src/app/caresyncai/staticfiles
       - media_volume:/usr/src/app/caresyncai/media
     ports:
-      - 81:80
+      - 80:80
     depends_on:
       - web
     networks:
