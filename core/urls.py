@@ -23,6 +23,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include('api.urls')),
+    path('api/v1/', include('apps.video_consultation.urls')),
     
     # API Schema documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

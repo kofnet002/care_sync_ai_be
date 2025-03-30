@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'apps.doctor',
     'apps.patient',
     'apps.user',
+    'apps.video_consultation',
 ]
 
 MIDDLEWARE = [
@@ -268,8 +269,8 @@ AUTH_USER_MODEL = 'user.User'
 
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
-REDIS_HOST = os.getenv('REDIS_HOST', 'caresyncai_redis')
-# REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
+# REDIS_HOST = os.getenv('REDIS_HOST', 'caresyncai_redis')
+REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
 REDIS_PORT = os.getenv('REDIS_PORT', 6379)
 REDIS_SSL  =  bool(int(os.getenv('REDIS_SSL', 0)))
 REDIS_PASS = os.getenv('REDIS_PRIMARY_PASS', '')
@@ -333,3 +334,9 @@ UI_DOMAIN = os.getenv("UI_DOMAIN", "http://localhost:3000")
 ADMIN_SITE_HEADER = 'CareSyncAI Admin'
 ADMIN_SITE_TITLE = 'CareSyncAI Admin'
 ADMIN_SITE_INDEX_TITLE = 'CareSyncAI Admin'
+
+# Twilio Configuration
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_API_KEY = os.getenv('TWILIO_API_KEY')
+TWILIO_API_SECRET = os.getenv('TWILIO_API_SECRET')

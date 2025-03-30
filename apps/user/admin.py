@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from apps.user.models import User, UserOTP
 from apps.doctor.models import DoctorPatient, DoctorNote, ChecklistItem
 from apps.patient.models import Reminder, ActionPlan
+from apps.video_consultation.models import VideoConsultation
 
 class CustomUserAdmin(UserAdmin):
     list_display = ('email','full_name', 'user_type','email_verified', 'is_active', 'is_staff', 'is_superuser', 'last_login', 'date_joined')
@@ -106,6 +107,15 @@ class ReminderAdmin(admin.ModelAdmin):
     get_patient.short_description = 'Patient'
     get_patient.admin_order_field = 'patient__email'
 
+class VideoConsultationAdmin(admin.ModelAdmin):
+    list_display = ('doctor', 'patient', 'scheduled_time', 'status')
+    list_display_links = ('doctor','patient')
+    list_filter = ('status', 'room_name', 'twilio_room_sid')
+    search_fields = ('status', 'room_name', 'twilio_rooom_sid')
+    date_hierarchy = 'scheduled_time'
+    ordering = ('id',)
+
+
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(UserOTP, UserOTPAdmin)
 admin.site.register(DoctorPatient, DoctorPatientAdmin)
@@ -113,3 +123,4 @@ admin.site.register(DoctorNote, DoctorNoteAdmin)
 admin.site.register(ChecklistItem, ChecklistItemAdmin)
 admin.site.register(ActionPlan, ActionPlanAdmin)
 admin.site.register(Reminder, ReminderAdmin)
+admin.site.register(VideoConsultation, VideoConsultationAdmin)

@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Video Consultation</title>
+    <script src="https://sdk.twilio.com/js/video/releases/2.17.1/twilio-video.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Google Sans', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #202124;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .meeting-info {
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 14px;
+        }
+
+        .video-container {
+            display: flex;
+            height: calc(100vh - 140px);
+            padding: 20px;
+            position: relative;
+        }
+
+        .main-video {
+            flex: 4;
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background-color: #3c4043;
+            margin-right: 20px;
+        }
+
+        .side-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .video-box {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: #3c4043;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #remote-media,
+        #local-media {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .video-box video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: #5f6368;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 48px;
+            font-weight: 500;
+            border: 4px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .remote-avatar {
+            width: 180px;
+            height: 180px;
+            font-size: 72px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(32, 33, 36, 0.8);
+            border-radius: 32px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .control-button {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            background-color: #3c4043;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .control-button:hover {
+            background-color: #4f5356;
+        }
+
+        .control-button.end-call {
+            background-color: #ea4335;
+        }
+
+        .control-button.end-call:hover {
+            background-color: #f25145;
+        }
+
+        .control-button .material-icons {
+            font-size: 24px;
+        }
+
+        .participant-name {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            z-index: 10;
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 12px;
+            color: #8ab4f8;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 4px 8px;
+            border-radius: 4px;
+            z-index: 10;
+        }
+
+        /* Loading indicator */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 5;
+        }
+
+        .loading .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #8ab4f8;
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 16px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .video-container {
+                flex-direction: column;
+                height: calc(100vh - 130px);
+                padding: 10px;
+            }
+
+            .main-video {
+                flex: 3;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            .side-panel {
+                flex: 1;
+                min-height: 120px;
+            }
+
+            .controls {
+                padding: 8px;
+                gap: 8px;
+                bottom: 10px;
+            }
+
+            .control-button {
+                width: 40px;
+                height: 40px;
+            }
+
+            .control-button .material-icons {
+                font-size: 20px;
+            }
+
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .avatar {
+                width: 80px;
+                height: 80px;
+                font-size: 32px;
+            }
+
+            .remote-avatar {
+                width: 120px;
+                height: 120px;
+                font-size: 48px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 8px 12px;
+            }
+
+            .video-container {
+                padding: 5px;
+            }
+
+            .controls {
+                width: 90%;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .side-panel {
+                min-height: 100px;
+            }
+
+            .avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+
+            .remote-avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Video Consultation</h1>
+        <div class="meeting-info">Consultation #<span id="consultation-id">6</span></div>
+    </div>
+
+    <div class="video-container">
+        <div class="main-video">
+            <div id="remote-media" class="video-box">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Waiting for others to join...</p>
+                </div>
+                <div id="remote-avatar" class="avatar remote-avatar" style="display: none;">RP</div>
+            </div>
+            <div class="participant-name">Remote Participant</div>
+            <div class="status-indicator">Connecting...</div>
+        </div>
+
+        <div class="side-panel">
+            <div class="video-box">
+                <div id="local-media"></div>
+                <div id="local-avatar" class="avatar" style="display: none;">YO</div>
+                <div class="participant-name">You</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="control-button" id="mic-button">
+            <span class="material-icons">mic</span>
+        </button>
+        <button class="control-button" id="video-button">
+            <span class="material-icons">videocam</span>
+        </button>
+        <button class="control-button end-call" id="leave-button" disabled>
+            <span class="material-icons">call_end</span>
+        </button>
+        <button class="control-button" id="join-button">
+            <span class="material-icons">call</span>
+        </button>
+    </div>
+
+    <script>
+        const joinButton = document.getElementById('join-button');
+        const leaveButton = document.getElementById('leave-button');
+        const micButton = document.getElementById('mic-button');
+        const videoButton = document.getElementById('video-button');
+        const statusIndicator = document.querySelector('.status-indicator');
+        const localAvatar = document.getElementById('local-avatar');
+        const remoteAvatar = document.getElementById('remote-avatar');
+
+        let activeRoom;
+        let localTracks = [];
+        let isMicMuted = false;
+        let isVideoOff = false;
+        let localVideoElement = null;
+        let remoteVideoElement = null;
+
+        const accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQzMzU4NTQ3LCJpYXQiOjE3NDMzNTQ5NDcsImp0aSI6ImZiODhkYjYyM2YwNTQ0ZmM4ZjJkZjQ3YjRlMzhmNTYwIiwidXNlcl9pZCI6MX0.Ir00dzdU_wCdPDWsKHPWJwvMaFRuZ_0zITCzkTaEkH0";
+        const tokenUrl = `/api/v1/consultations/{consultation_id}/join/`;
+
+        // Initialize avatar initials by user name
+        function initializeAvatars(localName = "You", remoteName = "Guest") {
+            // Set initials for local avatar (get first letters of first and last name)
+            const localInitials = localName.split(' ')
+                .map(name => name.charAt(0))
+                .join('')
+                .substring(0, 2)
+                .toUpperCase();
+
+            // Set initials for remote avatar
+            const remoteInitials = remoteName.split(' ')
+                .map(name => name.charAt(0))
+                .join('')
+                .substring(0, 2)
+                .toUpperCase();
+
+            localAvatar.textContent = localInitials;
+            remoteAvatar.textContent = remoteInitials;
+        }
+
+        async function getToken(consultationId) {
+            try {
+                const response = await fetch(tokenUrl.replace('{consultation_id}', consultationId), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+                const responseData = await response.json();
+                console.log({ responseData });
+                return responseData;
+            } catch (error) {
+                console.error('Error fetching token:', error);
+                throw error;
+            }
+        }
+
+        function attachTrack(track, container) {
+            // Check if this is a trackPublication or a track
+            const mediaTrack = track.track || track;
+
+            // Now check if it has the attach method
+            if (typeof mediaTrack.attach === 'function') {
+                const element = mediaTrack.attach();
+                container.appendChild(element);
+
+                // Store reference to video elements
+                if (mediaTrack.kind === 'video') {
+                    if (container.id === 'local-media') {
+                        localVideoElement = element;
+                    } else if (container.id === 'remote-media') {
+                        remoteVideoElement = element;
+                        // Hide remote avatar when video is shown
+                        remoteAvatar.style.display = 'none';
+                    }
+                }
+
+                return element;
+            } else {
+                console.warn('Track does not have attach method:', track);
+                return null;
+            }
+        }
+
+        function attachParticipantTracks(participant, container) {
+            // Clear loading message when tracks are being attached
+            const loadingElement = container.querySelector('.loading');
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+
+            // Update participant name if available
+            if (participant.identity) {
+                const nameElement = container.closest('.main-video, .side-panel').querySelector('.participant-name');
+                if (nameElement) {
+                    nameElement.textContent = participant.identity;
+                }
+
+                // Update remote avatar with participant initials
+                if (container.id === 'remote-media') {
+                    const initials = participant.identity.split(' ')
+                        .map(name => name.charAt(0))
+                        .join('')
+                        .substring(0, 2)
+                        .toUpperCase();
+                    remoteAvatar.textContent = initials;
+                }
+            }
+
+            let hasVideoTrack = false;
+
+            participant.tracks.forEach(publication => {
+                if (publication.track) {
+                    attachTrack(publication.track, container);
+
+                    if (publication.track.kind === 'video') {
+                        hasVideoTrack = true;
+                    }
+                }
+
+                // Handle track subscription events
+                publication.on('subscribed', track => {
+                    console.log('Subscribed to track:', track);
+                    attachTrack(track, container);
+                    updateStatusIndicator('Connected');
+
+                    if (track.kind === 'video') {
+                        hasVideoTrack = true;
+                        if (container.id === 'remote-media') {
+                            remoteAvatar.style.display = 'none';
+                        }
+                    }
+                });
+
+                publication.on('unsubscribed', track => {
+                    track.detach().forEach(element => element.remove());
+
+                    if (track.kind === 'video') {
+                        if (container.id === 'remote-media') {
+                            remoteAvatar.style.display = 'flex';
+                        }
+                    }
+                });
+            });
+
+            // Show avatar if no video track is found
+            if (!hasVideoTrack && container.id === 'remote-media') {
+                remoteAvatar.style.display = 'flex';
+            }
+        }
+
+        function updateStatusIndicator(status) {
+            statusIndicator.textContent = status;
+        }
+
+        // Handle window resize for responsive layout
+        function handleResize() {
+            const container = document.querySelector('.video-container');
+            if (window.innerWidth <= 768) {
+                container.style.flexDirection = 'column';
+            } else {
+                container.style.flexDirection = 'row';
+            }
+        }
+
+        // Initialize resize handler
+        window.addEventListener('resize', handleResize);
+        handleResize();
+
+        // Initialize avatars with default values
+        initializeAvatars();
+
+        joinButton.onclick = async () => {
+            const consultationId = document.getElementById('consultation-id').textContent;
+            updateStatusIndicator('Connecting...');
+
+            try {
+                const data = await getToken(consultationId);
+                console.log('Token:', data.data.token);
+                console.log('Room name:', data.data.room_name);
+
+                // Create local tracks first
+                localTracks = await Twilio.Video.createLocalTracks({
+                    audio: true,
+                    video: { width: 640, height: 480 }
+                });
+
+                // Attach local tracks to the local media container
+                const localMediaContainer = document.getElementById('local-media');
+                localTracks.forEach(track => {
+                    attachTrack(track, localMediaContainer);
+
+                    // Hide avatar when video is shown
+                    if (track.kind === 'video') {
+                        localAvatar.style.display = 'none';
+                    }
+                });
+
+                // Connect to the room
+                const room = await Twilio.Video.connect(data.data.token, {
+                    name: data.data.room_name,
+                    tracks: localTracks
+                });
+
+                activeRoom = room;
+                console.log('Connected to room:', activeRoom);
+                updateStatusIndicator('Connected');
+
+                // Handle remote participants
+                const remoteMediaContainer = document.getElementById('remote-media');
+
+                // Handle already connected participants
+                if (room.participants.size > 0) {
+                    room.participants.forEach(participant => {
+                        console.log('Remote participant already connected:', participant);
+                        attachParticipantTracks(participant, remoteMediaContainer);
+                    });
+                } else {
+                    // Show avatar if no participants
+                    remoteAvatar.style.display = 'flex';
+                }
+
+                // Handle new participants connecting
+                room.on('participantConnected', participant => {
+                    console.log('Remote participant connected:', participant);
+                    attachParticipantTracks(participant, remoteMediaContainer);
+
+                    participant.on('trackSubscribed', track => {
+                        console.log('Track subscribed:', track);
+                        attachTrack(track, remoteMediaContainer);
+
+                        if (track.kind === 'video') {
+                            remoteAvatar.style.display = 'none';
+                        }
+                    });
+
+                    participant.on('trackUnsubscribed', track => {
+                        track.detach().forEach(element => element.remove());
+
+                        if (track.kind === 'video') {
+                            remoteAvatar.style.display = 'flex';
+                        }
+                    });
+                });
+
+                // Handle participants disconnecting
+                room.on('participantDisconnected', participant => {
+                    console.log('Remote participant disconnected:', participant);
+                    participant.tracks.forEach(publication => {
+                        if (publication.track) {
+                            publication.track.detach().forEach(element => element.remove());
+                        }
+                    });
+
+                    // Show loading indicator and avatar if no participants left
+                    if (room.participants.size === 0) {
+                        const loadingElement = remoteMediaContainer.querySelector('.loading');
+                        if (loadingElement) {
+                            loadingElement.style.display = 'block';
+                        }
+                        remoteAvatar.style.display = 'none';
+                    }
+                });
+
+                joinButton.style.display = 'none';
+                leaveButton.disabled = false;
+
+            } catch (error) {
+                console.error('Failed to connect:', error);
+                alert('Failed to connect to the consultation');
+                updateStatusIndicator('Connection failed');
+            }
+        };
+
+        leaveButton.onclick = () => {
+            if (activeRoom) {
+                activeRoom.disconnect();
+                activeRoom = null;
+
+                // Stop and detach local tracks
+                localTracks.forEach(track => {
+                    track.stop();
+                    track.detach().forEach(element => element.remove());
+                });
+                localTracks = [];
+
+                // Clear video elements
+                document.getElementById('local-media').innerHTML = '';
+                document.getElementById('remote-media').innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Waiting for others to join...</p>
+                    </div>
+                    <div id="remote-avatar" class="avatar remote-avatar" style="display: none;">RP</div>
+                `;
+
+                // Reinitialize the remote avatar
+                remoteAvatar = document.getElementById('remote-avatar');
+                initializeAvatars();
+
+                // Show local avatar
+                localAvatar.style.display = 'flex';
+
+                joinButton.style.display = 'block';
+                leaveButton.disabled = true;
+                updateStatusIndicator('Disconnected');
+
+                // Reset button states
+                isMicMuted = false;
+                isVideoOff = false;
+                micButton.innerHTML = '<span class="material-icons">mic</span>';
+                videoButton.innerHTML = '<span class="material-icons">videocam</span>';
+            }
+        };
+
+        // Mute/unmute microphone
+        micButton.onclick = () => {
+            if (localTracks.length > 0) {
+                const audioTrack = localTracks.find(track => track.kind === 'audio');
+                if (audioTrack) {
+                    if (isMicMuted) {
+                        audioTrack.enable();
+                        micButton.innerHTML = '<span class="material-icons">mic</span>';
+                    } else {
+                        audioTrack.disable();
+                        micButton.innerHTML = '<span class="material-icons">mic_off</span>';
+                    }
+                    isMicMuted = !isMicMuted;
+                }
+            }
+        };
+
+        // Toggle video
+        videoButton.onclick = () => {
+            if (localTracks.length > 0) {
+                const videoTrack = localTracks.find(track => track.kind === 'video');
+                if (videoTrack) {
+                    if (isVideoOff) {
+                        videoTrack.enable();
+                        videoButton.innerHTML = '<span class="material-icons">videocam</span>';
+                        localAvatar.style.display = 'none';
+                        if (localVideoElement) {
+                            localVideoElement.style.display = 'block';
+                        }
+                    } else {
+                        videoTrack.disable();
+                        videoButton.innerHTML = '<span class="material-icons">videocam_off</span>';
+                        localAvatar.style.display = 'flex';
+                        if (localVideoElement) {
+                            localVideoElement.style.display = 'none';
+                        }
+                    }
+                    isVideoOff = !isVideoOff;
+                }
+            }
+        };
+    </script>
+</body>
+
+</html>
