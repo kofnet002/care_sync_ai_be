@@ -211,8 +211,8 @@ jobs:
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
-          scp -P 924 -o StrictHostKeyChecking=no -r ./.env ./docker-compose.cd.prod.yml github@${{ secrets.SERVER_IP_ADDRESS }}:/opt/devs/kofi/app/caresyncai
-          ssh -P 924 -o StrictHostKeyChecking=no github@${{ secrets.SERVER_IP_ADDRESS }} << 'ENDSSH'
+          scp -p 924 -o StrictHostKeyChecking=no -r ./.env ./docker-compose.cd.prod.yml github@${{ secrets.SERVER_IP_ADDRESS }}:/opt/devs/kofi/app/caresyncai
+          ssh -p 924 -o StrictHostKeyChecking=no github@${{ secrets.SERVER_IP_ADDRESS }} << 'ENDSSH'
             cd /opt/devs/kofi/app/caresyncai
             source .env
 
