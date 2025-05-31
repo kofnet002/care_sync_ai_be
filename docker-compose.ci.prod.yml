@@ -10,6 +10,7 @@ services:
     container_name: caresyncai_server
     restart: always
     command: python manage.py runserver 0.0.0.0:8000
+    platform: linux/amd64
     volumes:
       - .:/usr/src/app/caresyncai
       - static_volume:/usr/src/app/caresyncai/staticfiles
@@ -34,6 +35,7 @@ services:
     image: "${DB_IMAGE}"
     container_name: caresyncai_db
     restart: always
+    platform: linux/amd64
     volumes:
       - caresyncai_postgres_data:/var/lib/postgresql/data/
     ports:
@@ -52,6 +54,7 @@ services:
     image: "${REDIS_IMAGE}"
     container_name: caresyncai_redis
     restart: always
+    platform: linux/amd64
     command: redis-server --appendonly yes
     ports:
       - "6382:6379"
@@ -70,6 +73,7 @@ services:
     image: "${CELERY_WORKER}"
     container_name: caresyncai_celery_worker
     restart: always
+    platform: linux/amd64
     command: ./start-celeryworker.sh
     volumes:
       - .:/usr/src/app/caresyncai
