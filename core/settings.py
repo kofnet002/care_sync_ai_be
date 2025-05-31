@@ -36,9 +36,25 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", default=0))
 
-ALLOWED_HOSTS = env('ALLOWED_HOSTS', default=[])
-CORS_ORIGIN_WHITELIST = env('CORS_ORIGIN_WHITELIST', default=[])
-CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS', default=[])
+# ALLOWED_HOSTS = env('ALLOWED_HOSTS', default=[])
+# CORS_ORIGIN_WHITELIST = env('CORS_ORIGIN_WHITELIST', default=[])
+# CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS', default=[])
+
+ALLOWED_HOSTS = ["*"]
+# Allow all CORS origins (for APIs, if using Django REST Framework or similar)
+CORS_ALLOW_ALL_ORIGINS = True 
+# Allow all CSRF origins (needed for forms, admin login, etc.)
+CSRF_TRUSTED_ORIGINS = ['https://*.ngrok-free.app', 'http://*.ngrok-free.app', 'http://localhost:5173']
+
+# Allowed methods & headers
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -67,6 +83,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

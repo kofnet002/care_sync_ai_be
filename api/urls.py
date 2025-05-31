@@ -1,6 +1,6 @@
 from django.urls import path
 from api.views.doctor import (
-    DoctorListView, MyPatientsView,
+    DoctorListView, DoctorProfileUpdateView, MyPatientsView,
     CreateNoteView, PatientNotesView, ListPatientNotesView,
     ActionPlanView, ActionPlanDetailView, ReminderView,
 )
@@ -33,6 +33,9 @@ urlpatterns = [
     path('auth/password/forgot/reset/request/', ForgetPasswordTokenRequest.as_view(), name='forget_password_code_request'),
     path('auth/password/forgot/reset/verify/', ForgetPasswordVerifyAccessToken.as_view(), name='forget_password_verify_code'),
     path('auth/password/forgot/reset/complete/', ForgetPasswordCompleteReset.as_view(), name='forget_password_complette'),
+
+    # Doctor
+    path('doctor/profile/', DoctorProfileUpdateView.as_view(), name='doctor-profile-update'),
 
     # Doctor-Patient endpoints
     path('doctors/', DoctorListView.as_view(), name='doctor-list'),

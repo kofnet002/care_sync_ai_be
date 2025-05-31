@@ -1,10 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from api.utils import permissions
 from apps.user.models import User
-from api.serilizers.doctor import DoctorListSerializer
-from drf_spectacular.utils import extend_schema
+from api.serilizers.doctor import DoctorListSerializer, DoctorProfileSerializer
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status
-from apps.doctor.models import DoctorPatient
+from apps.doctor.models import DoctorPatient, DoctorProfile
 from api.serilizers.doctor import DoctorPatientSerializer
 from drf_spectacular.utils import OpenApiResponse
 from django.shortcuts import get_object_or_404
@@ -62,7 +63,6 @@ class MyPatientsView(APIView):
         # Serialize the paginated data
         serializer = DoctorPatientSerializer(paginated_doctor_patients, many=True)
         return paginator.get_paginated_response(serializer.data)
-
 
 class CreateNoteView(APIView):
     permission_classes = [IsAuthenticated, IsDoctor, IsEmailVerified]
@@ -318,3 +318,37 @@ class ReminderView(APIView):
         
         serializer = ReminderSerializer(paginated_reminders, many=True)
         return paginator.get_paginated_response(serializer.data)
+
+@extend_schema_view(
+    get=extend_schema(
+        summary='Get Doctor Profile',
+        description='Retrieve the authenticated doctor\'s profile information.',
+        operation_id='getDoctorProfile',
+        tags=['Doctor'],
+        responses={200: DoctorProfileSerializer}
+    ),
+    put=extend_schema(
+        summary='Update Doctor Profile',
+        description='Update all fields of the authenticated doctor\'s profile.',
+        operation_id='updateDoctorProfile',
+        tags=['Doctor'],
+        request=DoctorProfileSerializer,
+        responses={200: DoctorProfileSerializer}
+    ),
+    patch=extend_schema(
+        summary='Partial Update Doctor Profile',
+        description='Update specific fields of the authenticated doctor\'s profile.',
+        operation_id='patchDoctorProfile',
+        tags=['Doctor'],
+        request=DoctorProfileSerializer,
+        responses={200: DoctorProfileSerializer}
+    )
+)
+class DoctorProfileUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = DoctorProfile.objects.all()
+    serializer_class = DoctorProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        # Assumes each doctor has one profile, and user is a Doctor
+        return DoctorProfile.objects.get(user=self.request.user)

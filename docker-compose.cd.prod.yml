@@ -4,9 +4,12 @@ services:
     container_name: caresyncai_server
     restart: always
     command: python manage.py runserver 0.0.0.0:8000
+    platform: linux/arm64
     volumes:
       - static_volume:/usr/src/app/caresyncai/staticfiles
       - media_volume:/usr/src/app/caresyncai/media
+    ports:
+      - 6007:8000
     expose:
       - 8000
     depends_on:
@@ -22,10 +25,11 @@ services:
     image: "${DB_IMAGE}"
     container_name: caresyncai_db
     restart: always
+    platform: linux/arm64
     volumes:
       - caresyncai_postgres_data:/var/lib/postgresql/data/
     ports:
-      - 5434:5432
+      - 5435:5432
     env_file: .env
     # env_file:
     #   - ./.env.dev
@@ -37,9 +41,10 @@ services:
     image: "${REDIS_IMAGE}"
     container_name: caresyncai_redis
     restart: always
+    platform: linux/arm64
     command: redis-server --appendonly yes
     ports:
-      - "6380:6379"
+      - "6382:6379"
     volumes:
       - ./redis-volume:/data
     networks:
@@ -50,6 +55,7 @@ services:
     image: "${CELERY_WORKER}"
     container_name: caresyncai_celery_worker
     restart: always
+    platform: linux/arm64
     command: ./start-celeryworker.sh
     env_file: .env
     # env_file:
@@ -58,7 +64,7 @@ services:
       - redis
       - db
       - web
-      - nginx
+      # - nginx
     networks:
       - backend
     mem_limit: 4g
@@ -80,21 +86,21 @@ services:
   #     - backend
   #   mem_limit: 512m
 
-  nginx:
-    image: "${NGINX_IMAGE}"
-    container_name: caresyncai_nginx
-    restart: always
-    volumes:
-      - ./docker/nginx/caresyncai.conf:/etc/nginx/conf.d/default.conf
-      - static_volume:/usr/src/app/caresyncai/staticfiles
-      - media_volume:/usr/src/app/caresyncai/media
-    ports:
-      - 80:80
-    depends_on:
-      - web
-    networks:
-      - backend
-    mem_limit: 256mb
+  # nginx:
+  #   image: "${NGINX_IMAGE}"
+  #   container_name: caresyncai_nginx
+  #   restart: always
+  #   volumes:
+  #     - ./docker/nginx/caresyncai.conf:/etc/nginx/conf.d/default.conf
+  #     - static_volume:/usr/src/app/caresyncai/staticfiles
+  #     - media_volume:/usr/src/app/caresyncai/media
+  #   ports:
+  #     - 80:80
+  #   depends_on:
+  #     - web
+  #   networks:
+  #     - backend
+  #   mem_limit: 256mb
 
 volumes:
   caresyncai_postgres_data:

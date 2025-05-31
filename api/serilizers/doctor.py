@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from apps.user.models import User
-from apps.doctor.models import DoctorPatient, DoctorNote, ChecklistItem
+from apps.doctor.models import DoctorPatient, DoctorNote, ChecklistItem, DoctorProfile
 from api.serilizers.patient import PatientSerializer, ActionPlanSerializer
 
 
@@ -53,8 +53,17 @@ class DoctorNoteSerializer(serializers.ModelSerializer):
         except Exception:
             return None
 
-
 class NoteResponseSerializer(serializers.Serializer):
     note = DoctorNoteSerializer()
     checklist_items = ChecklistItemSerializer(many=True)
     action_plans = ActionPlanSerializer(many=True) 
+    
+    
+class DoctorProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DoctorProfile
+        fields = [
+            'id', 'user', 'title', 'gender', 'specialization', 'location', 'rating',
+            'reviews', 'price_range', 'profile_image', 'services'
+        ]
+        read_only_fields = ['id', 'user', 'rating', 'reviews']
