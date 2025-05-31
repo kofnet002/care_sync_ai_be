@@ -58,27 +58,27 @@ RUN apt-get update && \
 COPY --from=base /opt/venv /opt/venv
 
 # Copy and prepare scripts
-COPY entrypoint.sh start-celeryworker.sh start-celerybeat.sh ./
-RUN dos2unix entrypoint.sh start-celeryworker.sh start-celerybeat.sh && \
-    chmod +x entrypoint.sh start-celeryworker.sh start-celerybeat.sh
+COPY entrypoint.prod.sh start-celeryworker.sh start-celerybeat.sh ./
+RUN dos2unix entrypoint.prod.sh start-celeryworker.sh start-celerybeat.sh && \
+    chmod +x entrypoint.prod.sh start-capplicationeleryworker.sh start-celerybeat.sh
 
 # Ensure the file has correct permissions and Unix-style line endings
-RUN dos2unix $APP_HOME/entrypoint.sh && \
-    chmod +x $APP_HOME/entrypoint.sh && \
-    ls -l $APP_HOME/entrypoint.sh  # Debugging: Check permissions
+RUN dos2unix $APP_HOME/entrypoint.prod.sh && \
+    chmod +x $APP_HOME/entrypoint.prod.sh && \
+    ls -l $APP_HOME/entrypoint.prod.sh  # Debugging: Check permissions
 
-RUN chmod +x /usr/src/app/caresyncai/entrypoint.sh
+RUN chmod +x /usr/src/app/caresyncai/entrypoint.prod.sh
 
-# Copy application
+# Copy 
 COPY . .
 
 # Set permissions
 RUN chmod -R 755 media staticfiles && \
     chown -R app:app $APP_HOME && \
-    chmod +x entrypoint.sh && \
+    chmod +x entrypoint.prod.sh && \
     chmod +x start-celeryworker.sh && \
     chmod +x start-celerybeat.sh
 
 USER app
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/usr/src/app/caresyncai/entrypoint.prod.sh"]
