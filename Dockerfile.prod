@@ -60,7 +60,7 @@ COPY --from=base /opt/venv /opt/venv
 # Copy and prepare scripts
 COPY entrypoint.prod.sh start-celeryworker.sh start-celerybeat.sh ./
 RUN dos2unix entrypoint.prod.sh start-celeryworker.sh start-celerybeat.sh && \
-    chmod +x entrypoint.prod.sh start-capplicationeleryworker.sh start-celerybeat.sh
+    chmod +x entrypoint.prod.sh start-celeryworker.sh start-celerybeat.sh
 
 # Ensure the file has correct permissions and Unix-style line endings
 RUN dos2unix $APP_HOME/entrypoint.prod.sh && \
