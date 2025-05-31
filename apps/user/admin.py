@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 from apps.user.models import User, UserOTP
-from apps.doctor.models import DoctorPatient, DoctorNote, ChecklistItem
+from apps.doctor.models import DoctorPatient, DoctorNote, ChecklistItem, DoctorProfile
 from apps.patient.models import Reminder, ActionPlan
 
 class CustomUserAdmin(UserAdmin):
@@ -44,6 +44,16 @@ class UserOTPAdmin(admin.ModelAdmin):
     search_fields = ('user__email',)
     raw_id_fields = ('user',)
     ordering = ('id',)
+    
+class DoctorProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'title', 'specialization', 'location', 'created_at')
+    list_display_links = ('user', 'title')
+    list_filter = ('created_at',)
+    search_fields = ('user__email', 'user__name', 'title', 'gender')
+    raw_id_fields = ('user',)
+    date_hierarchy = 'created_at'
+    ordering = ('id',)
+    
 class DoctorPatientAdmin(admin.ModelAdmin):
     list_display = ('doctor', 'patient', 'created_at')
     list_display_links = ('doctor', 'patient')
@@ -108,6 +118,7 @@ class ReminderAdmin(admin.ModelAdmin):
 
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(UserOTP, UserOTPAdmin)
+admin.site.register(DoctorProfile, DoctorProfileAdmin)
 admin.site.register(DoctorPatient, DoctorPatientAdmin)
 admin.site.register(DoctorNote, DoctorNoteAdmin)
 admin.site.register(ChecklistItem, ChecklistItemAdmin)

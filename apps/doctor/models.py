@@ -1,3 +1,4 @@
+from random import choices
 from django.db import models
 from django.core.exceptions import ValidationError
 from apps.user.models import User
@@ -89,6 +90,35 @@ class DoctorNote(models.Model):
 
     def __str__(self):
         return f"Note for {self.doctor_patient.patient.full_name} by Dr. {self.doctor_patient.doctor.full_name}"
+
+class DoctorProfile(models.Model):
+    class Specialization(models.TextChoices):
+        UROLOGY = 'UROLOGY', 'Urology'
+        BRAIN_SURGERY = 'BRAIN_SURGERY', 'Brain Surgery'
+        ORTHOPAEDICS = 'ORTHOPAEDICS', 'Orthopaedics'
+        CARDIOLOGY = 'CARDIOLOGY', 'Cardiology'
+        DENTIST = 'DENTIST', 'Dentist'
+    
+    class Gender(models.TextChoices):
+        MALE = 'MALE', 'Male'
+        FEMALE = 'FEMALE', 'Female'
+        
+    user = models.OneToOneField('user.User', on_delete=models.CASCADE, related_name='doctor_profile')
+    title = models.CharField(max_length=100)
+    gender = models.CharField(max_length=20, choices=Gender.choices)
+    specialization = models.CharField(max_length=20, choices=Specialization.choices)
+    location = models.CharField(max_length=255)
+    rating = models.FloatField(default=0.0)
+    reviews = models.PositiveIntegerField(default=0)
+    price_range = models.CharField(max_length=50)
+    profile_image = models.URLField(max_length=500, blank=True, null=True)
+    services = models.CharField(max_length=255, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.user.full_name} - {self.specialization}"
 
 class ChecklistItem(models.Model):
     note = models.ForeignKey(
