@@ -24,7 +24,7 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    # if: github.ref == 'refs/heads/main'
     steps:
       - name: Get source Code
         uses: actions/checkout@v3
@@ -69,7 +69,7 @@ jobs:
     name: Build Docker Images for Develop
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/main'
+    # if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout main
         uses: actions/checkout@v2
@@ -151,7 +151,7 @@ jobs:
     name: Deploy to Production Server
     runs-on: ubuntu-latest
     needs: build-production
-    if: github.ref == 'refs/heads/main'
+    # if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout master
         uses: actions/checkout@v2
