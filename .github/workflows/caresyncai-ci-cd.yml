@@ -71,6 +71,10 @@ jobs:
     needs: test
     # if: github.ref == 'refs/heads/main'
     steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm64
       - name: Checkout main
         uses: actions/checkout@v2
       - name: Add environment variables to .env
@@ -156,7 +160,7 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         with:
-          platforms: linux/arm64
+          platforms: arm64
       - name: Checkout master
         uses: actions/checkout@v2
       - name: Add environment variables to .env
