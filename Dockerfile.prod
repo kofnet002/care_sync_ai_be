@@ -1,5 +1,5 @@
-# Base image with Python 3.10
-FROM python:3.10-slim-buster as base
+# Base image with Python 3.10 for ARM64
+FROM --platform=linux/arm64 python:3.10-slim-buster AS base
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -25,7 +25,7 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Final stage
-FROM python:3.10-slim-buster
+FROM --platform=linux/arm64 python:3.10-slim-buster
 
 ENV HOME=/user/src \
     APP_HOME=/usr/src/app/caresyncai \
@@ -36,45 +36,31 @@ ENV HOME=/user/src \
 # Create app user and directories
 RUN groupadd --system app && \
     useradd --system --gid app --shell /bin/bash --create-home app && \
-    mkdir -p $APP_HOME && \
     mkdir -p $APP_HOME/media && \
     mkdir -p $APP_HOME/staticfiles
 
-# Set work directory
 WORKDIR $APP_HOME
 
 # Install only essential runtime dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
     libmagic1 \
     libmagic-dev \
     postgresql-client \
     netcat-traditional \
     dos2unix && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copy virtual environment from base
 COPY --from=base /opt/venv /opt/venv
 
-# Copy and prepare scripts
+# Copy project files
 COPY . .
 
-# RUN dos2unix entrypoint.prod.sh start-celeryworker.sh start-celerybeat.sh && \
-#     chmod +x entrypoint.prod.sh start-celeryworker.sh start-celerybeat.sh
-
-# Ensure the file has correct permissions and Unix-style line endings
-# RUN dos2unix $APP_HOME/entrypoint.prod.sh && \
-#     chmod +x $APP_HOME/entrypoint.prod.sh && \
-#     ls -l $APP_HOME/entrypoint.prod.sh  # Debugging: Check permissions
-
-# modify scripts in case of windows file stuff and make them executable
-RUN sed -i 's/\r$//g'  entrypoint.prod.sh && chmod +x  entrypoint.prod.sh\
-    && sed -i 's/\r$//g' start-celeryworker.sh && chmod +x  start-celeryworker.sh\
-    && sed -i 's/\r$//g' start-celerybeat.sh && chmod +x  start-celerybeat.sh
-# && sed -i 's/\r$//g' start-flower.sh && chmod +x  start-flower.sh
-
-RUN chmod +x /usr/src/app/caresyncai/entrypoint.prod.sh
+# Ensure scripts are valid for ARM Linux
+RUN sed -i 's/\r$//g' entrypoint.prod.sh && chmod +x entrypoint.prod.sh && \
+    sed -i 's/\r$//g' start-celeryworker.sh && chmod +x start-celeryworker.sh && \
+    sed -i 's/\r$//g' start-celerybeat.sh && chmod +x start-celerybeat.sh
 
 # Set permissions
 RUN chmod -R 755 media staticfiles && \
