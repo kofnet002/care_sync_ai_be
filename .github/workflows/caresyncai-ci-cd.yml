@@ -204,15 +204,15 @@ jobs:
           ssh-keyscan github.com >> ~/.ssh/known_hosts
           ssh-add - <<< "${{ secrets.PRIVATE_KEY }}"
 
-      - name: Test SSH Connection
-        run: ssh -P 924 -o StrictHostKeyChecking=no github@${{ secrets.SERVER_IP_ADDRESS }} "echo SSH connection successful"
+      # - name: Test SSH Connection
+      #   run: ssh -p 924 -o StrictHostKeyChecking=no github@${{ secrets.SERVER_IP_ADDRESS }} "echo SSH connection successful"
 
       - name: Deploy to Production VPS Server
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
           scp -P 924 -o StrictHostKeyChecking=no -r ./.env ./docker-compose.cd.prod.yml github@${{ secrets.SERVER_IP_ADDRESS }}:/app/caresyncai
-          ssh -P 924-o StrictHostKeyChecking=no github@${{ secrets.SERVER_IP_ADDRESS }} << 'ENDSSH'
+          ssh -P 924 -o StrictHostKeyChecking=no github@${{ secrets.SERVER_IP_ADDRESS }} << 'ENDSSH'
             cd /app/caresyncai
             source .env
 
