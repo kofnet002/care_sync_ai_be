@@ -82,4 +82,4 @@ RUN chmod -R 755 media staticfiles && \
 
 USER app
 
-ENTRYPOINT ["/usr/src/app/caresyncai/entrypoint.prod.sh"]
+ENTRYPOINT ["./entrypoint.prod.sh"]
