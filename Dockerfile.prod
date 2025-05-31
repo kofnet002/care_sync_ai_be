@@ -58,26 +58,27 @@ RUN apt-get update && \
 COPY --from=base /opt/venv /opt/venv
 
 # Copy and prepare scripts
-COPY entrypoint.prod.sh start-celeryworker.sh start-celerybeat.sh ./
-RUN dos2unix entrypoint.prod.sh start-celeryworker.sh start-celerybeat.sh && \
-    chmod +x entrypoint.prod.sh start-celeryworker.sh start-celerybeat.sh
+COPY . .
+
+# RUN dos2unix entrypoint.prod.sh start-celeryworker.sh start-celerybeat.sh && \
+#     chmod +x entrypoint.prod.sh start-celeryworker.sh start-celerybeat.sh
 
 # Ensure the file has correct permissions and Unix-style line endings
-RUN dos2unix $APP_HOME/entrypoint.prod.sh && \
-    chmod +x $APP_HOME/entrypoint.prod.sh && \
-    ls -l $APP_HOME/entrypoint.prod.sh  # Debugging: Check permissions
+# RUN dos2unix $APP_HOME/entrypoint.prod.sh && \
+#     chmod +x $APP_HOME/entrypoint.prod.sh && \
+#     ls -l $APP_HOME/entrypoint.prod.sh  # Debugging: Check permissions
+
+# modify scripts in case of windows file stuff and make them executable
+RUN sed -i 's/\r$//g'  entrypoint.prod.sh && chmod +x  entrypoint.prod.sh\
+    && sed -i 's/\r$//g' start-celeryworker.sh && chmod +x  start-celeryworker.sh\
+    && sed -i 's/\r$//g' start-celerybeat.sh && chmod +x  start-celerybeat.sh
+# && sed -i 's/\r$//g' start-flower.sh && chmod +x  start-flower.sh
 
 RUN chmod +x /usr/src/app/caresyncai/entrypoint.prod.sh
 
-# Copy 
-COPY . .
-
 # Set permissions
 RUN chmod -R 755 media staticfiles && \
-    chown -R app:app $APP_HOME && \
-    chmod +x entrypoint.prod.sh && \
-    chmod +x start-celeryworker.sh && \
-    chmod +x start-celerybeat.sh
+    chown -R app:app $APP_HOME
 
 USER app
 
